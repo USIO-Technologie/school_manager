@@ -1,2 +1,2 @@
 # school_manager
-gestion
+gestion des écoles
