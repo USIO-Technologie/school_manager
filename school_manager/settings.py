@@ -80,6 +80,8 @@ LOGIN_REDIRECT_URL = ''
 
 LOGIN_URL = 'comptes:login'
 
+AUTH_USER_MODEL = 'auth.User'
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
