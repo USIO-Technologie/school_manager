@@ -52,8 +52,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    
+    'comptes.middleware.SchoolMiddleware',
+    
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'school_manager.urls'
@@ -79,6 +83,8 @@ WSGI_APPLICATION = 'school_manager.wsgi.application'
 LOGIN_REDIRECT_URL = ''
 
 LOGIN_URL = 'comptes:login'
+
+AUTH_USER_MODEL = 'auth.User'
 
 
 # Database

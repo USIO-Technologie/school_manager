@@ -1,1 +1,17 @@
 .venv
+.idea
+
+# Ignorer les fichiers de migration Django
+*/migrations/
+!*/migrations/__init__.py
+
+# Ignorer la base de données SQLite (si tu utilises SQLite)
+*.sqlite3
+
+# Ignorer les fichiers de migration spécifiques (optionnel)
+**/migrations/*.pyc
+
+# Ignorer les fichiers pycache
+__pycache__/
+**/__pycache__/
+*.pyc
