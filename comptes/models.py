@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 
+from ecoles.models import Ecole
+
 class Role(models.Model):
     nom = models.CharField(max_length=100, unique=True)
 
@@ -15,6 +17,7 @@ class Role(models.Model):
 class Profil(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profil')
+    ecoles = models.ManyToManyField(Ecole, related_name='profil', blank=True)
     nom = models.CharField(max_length=150)
     date_naissance = models.DateTimeField(blank=True, null=True)
     matricule = models.CharField(max_length=50, unique=True)

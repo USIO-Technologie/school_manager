@@ -46,7 +46,7 @@ class Ecole(models.Model):
     
 
     class Meta:
-        verbose_name = "École"
+        verbose_name = "Ecole"
         verbose_name_plural = "ECOLES"
         ordering = ["-created_at"]
 
