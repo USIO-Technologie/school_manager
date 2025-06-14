@@ -8,7 +8,7 @@ from django.http import HttpResponseForbidden
 
 # Create your views here.
 class HomeView(View):
-    template_name = 'home/home.html'
+    template_name = 'comptes/home.html'
     def get(self, request):
        return render (request, self.template_name)
 
