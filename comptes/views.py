@@ -4,7 +4,14 @@ from django.views.generic import TemplateView
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
+from django.utils import timezone
+from django.db.models import Sum
+import calendar
+
+from academiques.models import Eleve, Classe, Cours
+from finance.models import Paiement
+from presence.models import Presence
 
 # Create your views here.
 class HomeView(View):
@@ -42,3 +49,74 @@ class ChoisirEcoleView(TemplateView):
 
         request.session["ecole_id"] = ecole.id
         return redirect("dashboard")                  # vue d'accueil
+
+
+class DashboardView(TemplateView):
+    template_name = "dashboard.html"
+
+
+class DashboardDataView(View):
+    def get(self, request, *args, **kwargs):
+        filt = {}
+        if request.ecole and not request.user.is_superuser:
+            filt["ecole"] = request.ecole
+
+        effectif = Eleve.objects.filter(**filt).count()
+        n_classes = Classe.objects.filter(**filt).count()
+        n_cours = Cours.objects.filter(**filt).count()
+        total_encaisse = (
+            Paiement.objects.filter(**filt).aggregate(total=Sum("montant"))[
+                "total"
+            ]
+            or 0
+        )
+
+        today = timezone.localdate()
+        present_count = Presence.objects.filter(
+            date=today, present=True, **filt
+        ).count()
+        taux_presence = (present_count / effectif * 100) if effectif else 0
+
+        labels = []
+        values = []
+        for i in range(11, -1, -1):
+            year = today.year
+            month = today.month - i
+            while month <= 0:
+                month += 12
+                year -= 1
+            start_month = timezone.datetime(year, month, 1).date()
+            last_day = calendar.monthrange(year, month)[1]
+            end_month = timezone.datetime(year, month, last_day).date()
+            total = (
+                Paiement.objects.filter(
+                    date_paiement__range=(start_month, end_month), **filt
+                ).aggregate(total=Sum("montant"))["total"]
+                or 0
+            )
+            labels.append(f"{month:02d}/{year}")
+            values.append(float(total))
+
+        timeline = []
+        payments = Paiement.objects.filter(**filt).order_by("-created_at")[:5]
+        absents = Presence.objects.filter(present=False, **filt).order_by("-date")[:5]
+        new_students = Eleve.objects.filter(**filt).order_by("-created_at")[:5]
+        for p in payments:
+            timeline.append({"date": p.created_at, "msg": f"{p.eleve} a payé {p.montant}"})
+        for pr in absents:
+            timeline.append({"date": pr.date, "msg": f"{pr.eleve} absent"})
+        for e in new_students:
+            timeline.append({"date": e.created_at, "msg": f"Nouvel élève {e}"})
+        timeline.sort(key=lambda x: x["date"], reverse=True)
+        timeline_msgs = [t["msg"] for t in timeline[:5]]
+
+        data = {
+            "effectif": effectif,
+            "n_classes": n_classes,
+            "n_cours": n_cours,
+            "total_encaisse": float(total_encaisse),
+            "taux_presence": round(taux_presence, 2),
+            "chart": {"labels": labels, "values": values},
+            "timeline": timeline_msgs,
+        }
+        return JsonResponse(data)
