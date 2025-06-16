@@ -27,14 +27,15 @@ class Command(BaseCommand):
         n_eleves  = opts["eleves"]
 
         # superadmin déjà existant ?
-        superuser, _ = User.objects.get_or_create(
-            username="root", defaults=dict(email="root@example.com", is_superuser=True, is_staff=True)
+        superuser, created = User.objects.get_or_create(
+        username="root",
+        defaults=dict(email="root@example.com",
+                    is_superuser=True, is_staff=True)
         )
-        if _.get("password") is not None:
+        if created or not superuser.has_usable_password():
             superuser.set_password("pass123")
             superuser.save()
-
-        self.stdout.write(self.style.SUCCESS(f"✔ Superadmin root / pass123"))
+        self.stdout.write(self.style.SUCCESS("✔ Superadmin root / pass123"))
 
         for i in range(n_ecoles):
             ecole = Ecole.objects.create(
