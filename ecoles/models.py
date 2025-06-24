@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 
+from ecoles.utils import generic_upload_to
 from school_manager import settings
 
 
@@ -10,8 +11,8 @@ class Ecole(models.Model):
     nom = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(unique=True, blank=True)
     slogan = models.CharField(max_length=255, blank=True)
-    description = models.TextField(blank=True)
-    logo = models.ImageField(upload_to="ecoles")
+    description = models.TextField(blank=True, verbose_name="Description de l'ecole")
+    logo = models.ImageField(upload_to=generic_upload_to, blank=True, null=True, verbose_name="Limage de l'ecole")
 
     adresse = models.CharField(max_length=255)
     ville = models.CharField(max_length=100)
@@ -98,3 +99,5 @@ class Langue(models.Model):
 
     def __str__(self):
         return self.nom
+    
+    

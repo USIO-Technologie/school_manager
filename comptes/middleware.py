@@ -24,7 +24,7 @@ class SchoolMiddleware:
 
         # blocage si aucune école choisie (et vue non exempte)
         if request.user.is_authenticated and request.ecole is None \
-           and request.path not in self.EXEMPT_PATHS:
+           and request.path not in self.EXEMPT_PATHS and not request.user.is_superuser:
             return HttpResponseForbidden("Sélectionnez une école pour continuer.")
 
         return self.get_response(request)
