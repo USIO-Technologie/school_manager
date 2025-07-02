@@ -42,3 +42,18 @@ class ProfilAdmin(ImportExportModelAdmin):
     def display_roles(self, obj):
         return ", ".join([role.nom for role in obj.roles.all()])
     display_roles.short_description = "Roles"
+
+"""
+    # admin.py
+from django.contrib import admin
+from .models import Eleve
+
+class EleveAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_super_admin:
+            return qs
+        return qs.filter(ecole=request.user.ecole)
+
+admin.site.register(Eleve, EleveAdmin)
+"""

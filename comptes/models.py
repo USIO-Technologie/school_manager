@@ -5,6 +5,11 @@ import random
 from school_manager import settings
 from django.utils import timezone
 from ecoles.models import Ecole
+import uuid
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
 
 class Role(models.Model):
     nom = models.CharField(max_length=100, unique=True)
@@ -93,3 +98,12 @@ class EmailOTP(models.Model):
             self.save()
             return "invalid"
     
+
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,)
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_valid(self):
+        return timezone.now() - self.created_at < timedelta(hours=1)

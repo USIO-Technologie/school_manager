@@ -1,10 +1,11 @@
-console.log("****************Script de gestion de l'inscription chargé.");
+console.log("✅ Script register.js chargé");
 
 $(document).ready(function () {
     let step = "register";
     let password = "";
-
     const $form = $("form.my-4");
+
+    const getLoginUrl = () => window.loginUrl || document.getElementById('login-url').value;
 
     $form.on("submit", function (e) {
         e.preventDefault();
@@ -27,8 +28,6 @@ $(document).ready(function () {
             }
 
             password = pass1;
-
-            console.log("**************Envoi des données d'inscription...");
 
             $.post("/register/", {
                 csrfmiddlewaretoken: csrfToken,
@@ -57,27 +56,26 @@ $(document).ready(function () {
                 password: password
             }, function (data) {
                 if (data.status === "verified") {
-                     Swal.fire({
+                    Swal.fire({
                         title: "Succès",
                         text: "Compte créé avec succès !",
                         icon: "success",
                     }).then(() => {
-                        window.location.href = "{% url 'login' %}";
+                        window.location.href = getLoginUrl();
                     });
                 } else if (data.status === "expired") {
-                    $form.prepend('<div class="alert alert-danger">Le code OTP a expiré. Veuillez recommencer l\'inscription.</div>');
+                    $form.prepend('<div class="alert alert-danger">Le code OTP a expiré.</div>');
                     location.reload();
                 } else if (data.status === "blocked") {
                     $form.prepend('<div class="alert alert-danger">Trop de tentatives incorrectes.</div>');
                     location.reload();
                 } else {
-                    $form.prepend('<div class="alert alert-danger">Code OTP incorrect. Veuillez réessayer.</div>');
+                    $form.prepend('<div class="alert alert-danger">Code OTP incorrect.</div>');
                 }
             });
         }
     });
 
-    // Gestion du renvoi de code OTP
     $("#resend-otp-link").click(function (e) {
         e.preventDefault();
 
@@ -98,9 +96,9 @@ $(document).ready(function () {
             password: password
         }, function (data) {
             if (data.status === "otp_resent") {
-                alert("Un nouveau code OTP a été envoyé !");
+                alert("Nouveau code envoyé !");
             } else {
-                alert("Erreur lors de l'envoi du nouveau code.");
+                alert("Erreur lors de l'envoi.");
             }
         });
     });

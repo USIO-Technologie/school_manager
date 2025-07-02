@@ -12,6 +12,18 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import os
 from pathlib import Path
+from . infos import *
+
+
+import django
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
+
+EMAIL_USE_TLS = EMAIL_USE_TLS
+EMAIL_HOST = EMAIL_HOST
+EMAIL_HOST_USER = EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
+EMAIL_PORT = EMAIL_PORT
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +38,7 @@ SECRET_KEY = 'django-insecure-(ngn6v#r^9q0r*@!pq+l7t8l!t7$3h^vk=^k(fe-!)knz&dehn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -88,7 +100,8 @@ LOGIN_URL = 'comptes:login'
 
 AUTH_USER_MODEL = 'auth.User'
 
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour test
+DEFAULT_FROM_EMAIL = 'moisediongo4@gmail.com'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 

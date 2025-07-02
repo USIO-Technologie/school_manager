@@ -2,6 +2,7 @@ from decimal import Decimal
 import uuid
 from django.shortcuts import render
 from django.views import View
+from django.views.generic import View
 from django.views.generic import TemplateView
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
@@ -14,13 +15,26 @@ import datetime as dt
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login
-from comptes.models import EmailOTP, Profil
+from comptes.models import EmailOTP, Profil,PasswordResetToken
 from comptes.tests import User
 from comptes.utils import as_datetime, send_otp_to_email
 from academiques.models import Eleve, Classe, Cours
 from finance.models import Paiement
 from presence.models import Presence
+from django.core.mail import send_mail,EmailMessage
+from school_manager import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.urls import reverse
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.hashers import make_password
 
+
+
+User = get_user_model()
 # Create your views here.
 class HomeView(View):
     template_name = 'comptes/home.html'
@@ -68,6 +82,14 @@ class RegisterView(TemplateView):
             otp_entry, created = EmailOTP.objects.get_or_create(email=email)
             print(f"*********************Register otp_entry: {otp_entry}, created: {created}")
             otp_entry.generer_otp()
+            from_email = settings.EMAIL_HOST_USER
+            send_mail(
+                subject="Email OTP",
+                message=f"votre code otp  : {otp_entry.otp}",
+                from_email=from_email,
+                recipient_list=[email],
+                fail_silently=False
+            )
             return JsonResponse({"status": "otp_sent"})
 
         elif step == "verify":
@@ -78,7 +100,7 @@ class RegisterView(TemplateView):
                 result = otp_entry.verifier_otp(code)
 
                 if result == "ok":
-                    if not User.objects.filter(username=email).exists():
+                    if not User.objects.filter(email=email).exists():
                         user = User.objects.create_user(username=email, email=email, password=password)
                         Profil.objects.create(user=user, nom=name, matricule=str(uuid.uuid4()))
                     return JsonResponse({"status": "verified"})
@@ -101,6 +123,74 @@ class RegisterView(TemplateView):
                 return JsonResponse({"status": "error"})
 
         return JsonResponse({"status": "error"})
+
+
+class ResetPasswordRequestView(View):
+    def get(self, request):
+        return render(request, 'comptes/password_reset.html')
+
+    def post(self, request):
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+            from_email = settings.EMAIL_HOST_USER
+            token_obj = PasswordResetToken.objects.create(user=user)
+            reset_link = request.build_absolute_uri(f"/reset-password-confirm/{token_obj.token}/")
+            send_mail(
+                subject="Réinitialisez votre mot de passe",
+                message=f"Cliquez ici pour réinitialiser votre mot de passe : {reset_link}",
+                from_email=from_email,
+                recipient_list=[email],
+                fail_silently=False
+            )
+            return JsonResponse({"message": "Lien envoyé ! Vérifiez votre email."})
+        except User.DoesNotExist:
+            return JsonResponse({"message": "Email introuvable."})
+
+# views.py (suite)
+
+import uuid
+from django.views import View
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.hashers import make_password
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from .models import PasswordResetToken
+
+class ResetPasswordConfirmView(View):
+    def get(self, request, token):
+        try:
+            # Conversion explicite en UUID
+            token = uuid.UUID(str(token))
+            token_obj = PasswordResetToken.objects.get(token=token)
+            if not token_obj.is_valid():
+                return JsonResponse({'message': 'Lien expiré'}, status=400)
+            return render(request, 'comptes/password_reset_confirm.html', {'token': token})
+        except (PasswordResetToken.DoesNotExist, ValueError):
+            return JsonResponse({'message': 'Lien invalide'}, status=400)
+
+    @method_decorator(csrf_exempt)  # Pour éviter les problèmes de CSRF si AJAX
+    def post(self, request, token):
+        try:
+            token = uuid.UUID(str(token))
+            token_obj = PasswordResetToken.objects.get(token=token)
+            if not token_obj.is_valid():
+                return JsonResponse({'message': 'Lien expiré'}, status=400)
+
+            password = request.POST.get('password')
+            if not password:
+                return JsonResponse({'message': 'Mot de passe manquant'}, status=400)
+
+            user = token_obj.user
+            user.password = make_password(password)
+            user.save()
+            token_obj.delete()
+
+            return JsonResponse({'message': 'Mot de passe réinitialisé avec succès'})
+        except (PasswordResetToken.DoesNotExist, ValueError):
+            return JsonResponse({'message': 'Lien invalide'}, status=400)
+
 
 class ChoisirEcoleView(TemplateView):
     template_name = "comptes/choisir_ecole.html"
