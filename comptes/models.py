@@ -1,9 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 import random
 from school_manager import settings
-from django.utils import timezone
 from ecoles.models import Ecole
 import uuid
 from django.db import models

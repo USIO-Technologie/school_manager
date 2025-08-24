@@ -38,7 +38,7 @@ SECRET_KEY = 'django-insecure-(ngn6v#r^9q0r*@!pq+l7t8l!t7$3h^vk=^k(fe-!)knz&dehn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -92,6 +92,7 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = "school_manager.asgi.application"
 WSGI_APPLICATION = 'school_manager.wsgi.application'
 
 LOGIN_REDIRECT_URL = ''
@@ -161,12 +162,12 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configuration du SMTP pour l'envoie des mails
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'nsoleoslo15@gmail.com'
-EMAIL_HOST_PASSWORD = 'rcyvewmvbbwavlin'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# # Configuration du SMTP pour l'envoie des mails
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'nsoleoslo15@gmail.com'
+# EMAIL_HOST_PASSWORD = 'rcyvewmvbbwavlin'
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 

@@ -1,38 +1,33 @@
-from decimal import Decimal
-import uuid
-from django.shortcuts import render
-from django.views import View
-from django.views.generic import View
-from django.views.generic import TemplateView
-from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect
-from django.urls import reverse_lazy
-from django.http import HttpResponseForbidden, JsonResponse
-from django.utils import timezone
-from django.db.models import Sum
 import calendar
 import datetime as dt
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
+import uuid
+from decimal import Decimal
+
 from django.contrib.auth import authenticate, login
-from comptes.models import EmailOTP, Profil,PasswordResetToken
-from comptes.tests import User
-from comptes.utils import as_datetime, send_otp_to_email
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
+from django.core.mail import send_mail
+from django.db.models import Sum
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView
+
 from academiques.models import Eleve, Classe, Cours
+from comptes.models import EmailOTP, Profil, PasswordResetToken
+from comptes.tests import User
+from comptes.utils import as_datetime
 from finance.models import Paiement
 from presence.models import Presence
-from django.core.mail import send_mail,EmailMessage
 from school_manager import settings
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.urls import reverse
-from django.http import JsonResponse
-from django.contrib.auth import get_user_model
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.auth.hashers import make_password
-
-
 
 User = get_user_model()
 # Create your views here.
@@ -54,7 +49,7 @@ class CustomLoginView(LoginView):
             # Redirection selon le nombre d'écoles
             if profil.ecoles.count() == 1:
                 request.session["ecole_id"] = profil.ecoles.first().id
-                return JsonResponse({"success": True, "redirect_url": str(reverse_lazy("dashboard"))})
+                return JsonResponse({"success": True, "redirect_url": str(reverse_lazy("comptes:dashboard"))})
             return JsonResponse({"success": True, "redirect_url": str(reverse_lazy("comptes:choisir_ecole"))})
         else:
             return JsonResponse({"success": False, "error": "Identifiants invalides."})
@@ -149,15 +144,6 @@ class ResetPasswordRequestView(View):
 
 # views.py (suite)
 
-import uuid
-from django.views import View
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.contrib.auth.hashers import make_password
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from .models import PasswordResetToken
-
 class ResetPasswordConfirmView(View):
     def get(self, request, token):
         try:
@@ -192,113 +178,204 @@ class ResetPasswordConfirmView(View):
             return JsonResponse({'message': 'Lien invalide'}, status=400)
 
 
-class ChoisirEcoleView(TemplateView):
+class ChoisirEcoleView(LoginRequiredMixin, TemplateView):
     template_name = "comptes/choisir_ecole.html"
+    login_url = "comptes:login"  # adapte selon ton nom d'URL
 
     def get_context_data(self, **kwargs):
+        print("-----------------get_context_data Choisir Ecole -------------")
         ctx = super().get_context_data(**kwargs)
-        ctx["ecoles"] = self.request.user.profil.ecoles.all() # type: ignore
+        profil = getattr(self.request.user, "profil", None)
+        ctx["ecoles"] = profil.ecoles.all() if profil else []
         return ctx
 
     def post(self, request, *args, **kwargs):
-        ecole_id = request.POST.get("ecole_id")
-        profil   = request.user.profil
+        print("-----------------POST Choisir Ecole -------------")
+        profil = getattr(request.user, "profil", None)
+        print(f"-------------profil : {profil}")
+        if not profil:
+            # user connecté mais sans profil utilisable
+            return HttpResponseForbidden("Profil utilisateur manquant.")
 
+        ecole_id = request.POST.get("ecole_id")
+        try:
+            ecole_id = int(ecole_id)  # sécurise le type
+        except (TypeError, ValueError):
+            return HttpResponseBadRequest("Identifiant d'école invalide.")
+
+        # Vérifie l’appartenance de l’école au profil
         try:
             ecole = profil.ecoles.get(pk=ecole_id)
         except profil.ecoles.model.DoesNotExist:
             return HttpResponseForbidden("École non autorisée.")
 
-        request.session["ecole_id"] = ecole.id
-        return redirect("dashboard")                  # vue d'accueil
+        request.session["ecole_id"] = ecole.pk
+        # Optionnel: invalider des caches liés à l’ancienne école ici
+        return redirect("/dashboard")  # adapte si besoin
 
 
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "comptes/dashboard.html"
+    login_url = "comptes:login"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.session.get("ecole_id"):
+            return redirect("comptes:choisir_ecole")
+
+        # Récupération des informations de l'école
+        profil = self.request.user.profil
+        ecole = profil.ecoles.get(id=self.request.session["ecole_id"])
+
+        context.update({
+            "ecole": ecole,
+            "nom_ecole": ecole.nom,
+            "ville_ecole": ecole.ville,
+            "pays_ecole": ecole.pays,
+        })
+
+        return context
 
 
-class DashboardDataView(View):
-    """API JSON consommée par dashboard.js"""
-    # ------------------------------------------------------------------
-    # GET /dashboard/data/
-    # ------------------------------------------------------------------
+class DashboardDataView(LoginRequiredMixin, View):
+    """API JSON pour les données du tableau de bord"""
+
     def get(self, request, *args, **kwargs):
-        # --------- 1) Filtre École ------------------------------------
-        filt = {}
-        if request.ecole and not request.user.is_superuser:
-            filt["ecole"] = request.ecole
+        if not request.session.get("ecole_id"):
+            return JsonResponse({"error": "No school selected"}, status=403)
+
+        ecole_id = request.session["ecole_id"]
+
+        try:
+            ecole = request.user.profil.ecoles.get(id=ecole_id)
+        except:
+            return JsonResponse({"error": "School not found"}, status=404)
 
         # --------- 2) KPI principaux ---------------------------------
-        effectif      = Eleve .objects.filter(**filt).count()
-        n_classes     = Classe.objects.filter(**filt).count()
-        n_cours       = Cours .objects.filter(**filt).count()
+        effectif = (
+            Eleve.objects
+            .filter(ecole=ecole, is_active=True)
+            .count()
+        )
+
+        n_classes = (
+            Classe.objects
+            .filter(eleve__ecole=ecole)
+            .distinct()
+            .count()
+        )
+
+        n_cours = (
+            Cours.objects
+            .filter(classe__eleve__ecole=ecole)
+            .distinct()
+            .count()
+        )
+
         total_encaisse = (
-            Paiement.objects.filter(**filt)
+            Paiement.objects
+            .filter(ecole=ecole)
             .aggregate(total=Sum("montant"))["total"] or Decimal("0")
         )
 
-        # taux de présence du jour ------------------------------------
-        today          = timezone.localdate()
-        present_count  = Presence.objects.filter(date=today, present=True, **filt).count()
-        taux_presence  = round((present_count / effectif * 100), 2) if effectif else 0
+        # --------- 3) Taux de présence du jour ------------------------------------
+        today = timezone.localtime().date()  # Utilisation de localtime().date() pour avoir la date locale
+        present_count = (
+            Presence.objects
+            .filter(
+                eleve__ecole=ecole,
+                date=today,
+                present=True
+            )
+            .count()
+        )
+        taux_presence = round((present_count / effectif * 100), 1) if effectif else 0
 
-        # --------- 3) Graphique CA (12 derniers mois) ----------------
+        # --------- 4) Graphique CA (12 derniers mois) ----------------
         labels, values = [], []
-        for i in range(11, -1, -1):                               # 11→0 (mois -11 à courant)
-            year  = today.year
-            month = today.month - i
-            while month <= 0:                                     # rebascule sur année précédente
-                month += 12
-                year  -= 1
-            start_month = dt.date(year, month, 1)
-            last_day    = calendar.monthrange(year, month)[1]
-            end_month   = dt.date(year, month, last_day)
+        current_date = timezone.localtime()
+
+        for i in range(11, -1, -1):
+            # Calcul de la date de début et fin du mois
+            date = current_date - dt.timedelta(days=current_date.day - 1) - dt.timedelta(days=30 * i)
+            start_month = date.replace(day=1)
+            if date.month == 12:
+                end_month = date.replace(year=date.year + 1, month=1, day=1) - dt.timedelta(days=1)
+            else:
+                end_month = date.replace(month=date.month + 1, day=1) - dt.timedelta(days=1)
 
             total = (
-                Paiement.objects.filter(
-                    date_paiement__range=(start_month, end_month), **filt
+                Paiement.objects
+                .filter(
+                    ecole=ecole,
+                    date_paiement__range=(start_month.date(), end_month.date())
                 )
                 .aggregate(total=Sum("montant"))["total"] or Decimal("0")
             )
-            labels.append(f"{month:02d}/{year}")
+
+            labels.append(f"{start_month.strftime('%m/%Y')}")
             values.append(float(total))
 
-        # --------- 4) Timeline (5 derniers évènements) ---------------
+        # --------- 5) Timeline (5 derniers évènements) ---------------
         timeline = []
 
-        # Paiements récents
-        for p in Paiement.objects.filter(**filt).order_by("-created_at")[:5]:
+        # Paiements récents avec leurs relations
+        paiements = (
+            Paiement.objects
+            .filter(ecole=ecole)
+            .select_related('eleve')
+            .order_by("-created_at")[:5]
+        )
+        for p in paiements:
             timeline.append({
                 "date": as_datetime(p.created_at),
-                "msg" : f"{p.eleve} a payé {p.montant} $",
+                "msg": f"{p.eleve.prenom} {p.eleve.nom} a payé {p.montant} $",
+                "type": "paiement"
             })
 
         # Absences récentes
-        for pr in Presence.objects.filter(present=False, **filt).order_by("-date")[:5]:
+        absences = (
+            Presence.objects
+            .filter(eleve__ecole=ecole, present=False)
+            .select_related('eleve')
+            .order_by("-date")[:5]
+        )
+        for a in absences:
             timeline.append({
-                "date": as_datetime(pr.date),
-                "msg" : f"{pr.eleve} absent",
+                "date": as_datetime(a.date),
+                "msg": f"{a.eleve.prenom} {a.eleve.nom} absent",
+                "type": "absence"
             })
 
         # Nouveaux élèves
-        for e in Eleve.objects.filter(**filt).order_by("-created_at")[:5]:
+        nouveaux_eleves = (
+            Eleve.objects
+            .filter(ecole=ecole)
+            .order_by("-created_at")[:5]
+        )
+        for e in nouveaux_eleves:
             timeline.append({
                 "date": as_datetime(e.created_at),
-                "msg" : f"Nouvel élève {e}",
+                "msg": f"Nouvel élève {e.prenom} {e.nom}",
+                "type": "nouveau"
             })
 
-        # Tri décroissant puis découpe aux 5 plus récents
+        # Tri par date et limitation
         timeline.sort(key=lambda x: x["date"], reverse=True)
         timeline_msgs = [ev["msg"] for ev in timeline[:5]]
 
-        # --------- 5) Payload JSON -----------------------------------
+        # --------- 6) Réponse JSON -----------------------------------
         data = {
-            "effectif"       : effectif,
-            "n_classes"      : n_classes,
-            "n_cours"        : n_cours,
-            "total_encaisse" : float(total_encaisse),
-            "taux_presence"  : taux_presence,
-            "chart"          : {"labels": labels, "values": values},
-            "timeline"       : timeline_msgs,
+            "effectif": effectif,
+            "n_classes": n_classes,
+            "n_cours": n_cours,
+            "total_encaisse": float(total_encaisse),
+            "taux_presence": taux_presence,
+            "chart": {
+                "labels": labels,
+                "values": values
+            },
+            "timeline": timeline_msgs,
         }
+
         return JsonResponse(data)

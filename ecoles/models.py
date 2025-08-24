@@ -8,8 +8,8 @@ from school_manager import settings
 class Ecole(models.Model):
     """Modèle représentant une école."""
 
-    nom = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(unique=True, blank=True)
+    nom = models.CharField(max_length=255, unique=True, verbose_name="Nom")
+    slug = models.SlugField(unique=True, blank=True, verbose_name="slug")
     slogan = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True, verbose_name="Description de l'ecole")
     logo = models.ImageField(upload_to=generic_upload_to, blank=True, null=True, verbose_name="Limage de l'ecole")

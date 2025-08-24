@@ -6,12 +6,12 @@ from .models import Classe, Eleve, Cours
 
 @admin.register(Classe)
 class ClasseAdmin(ImportExportModelAdmin):
-    list_display = ("nom", "cycle", "annee_scolaire", "ecole", "is_active", "created_at")
-    list_filter = ("cycle", "ecole", "annee_scolaire", "is_active")
+    list_display = ("nom", "cycle", "annee_scolaire", "is_active", "created_at")
+    list_filter = ("cycle", "annee_scolaire", "is_active")
     search_fields = ("nom",)
     readonly_fields = ("created_at", "last_update")
 
-    def save_model(self, request, obj, form, change):  # pragma: no cover - admin
+    def save_model(self, request, obj, form, change):
         if not change:
             obj.create_by = request.user
         obj.update_by = request.user
@@ -34,8 +34,8 @@ class EleveAdmin(ImportExportModelAdmin):
 
 @admin.register(Cours)
 class CoursAdmin(ImportExportModelAdmin):
-    list_display = ("nom", "classe", "ecole", "is_active", "created_at")
-    list_filter = ("classe", "ecole", "is_active")
+    list_display = ("nom", "classe", "is_active", "created_at")
+    list_filter = ("classe", "is_active")
     search_fields = ("nom", "description")
     readonly_fields = ("created_at", "last_update")
 

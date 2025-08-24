@@ -22,7 +22,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
-    path('', include('comptes.urls'))
+    path('', include('comptes.urls')),
+    path("comptes/", include(("comptes.urls", "comptes"), namespace="comptes")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
