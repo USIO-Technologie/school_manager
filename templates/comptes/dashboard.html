@@ -1,244 +1,202 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ nom_ecole }} - Tableau de bord</title>
-    <link rel="shortcut icon" href="{% static 'school_manager/assets/images/favicon.ico' %}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="border-b border-gray-200 bg-white">
-        <div class="mx-auto max-w-7xl px-4 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo et info école -->
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-3">
-                        <div class="flex -space-x-1">
-                            <span class="inline-block h-2.5 w-2.5 rounded-full bg-blue-600"></span>
-                            <span class="inline-block h-2.5 w-2.5 rounded-full bg-yellow-500"></span>
-                            <span class="inline-block h-2.5 w-2.5 rounded-full bg-red-500"></span>
-                        </div>
-                        <span class="text-lg font-semibold text-gray-900">School Manager</span>
-                    </div>
-                    <div class="hidden md:block h-6 w-px bg-gray-200"></div>
-                    <div>
-                        <h1 class="text-lg font-medium text-gray-900">{{ nom_ecole }}</h1>
-                        <p class="text-sm text-gray-500">{{ ville_ecole }}, {{ pays_ecole }}</p>
-                    </div>
-                </div>
 
-                <!-- Actions -->
-                <div class="flex items-center gap-4">
-                    <a href="{% url 'comptes:choisir_ecole' %}"
-                       class="text-sm font-medium text-gray-500 hover:text-gray-900">
-                        Changer d'école
-                    </a>
-                    <button type="button" class="rounded-full bg-gray-100 p-2 hover:bg-gray-200">
-                        <span class="sr-only">Notifications</span>
-                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
+{% block title %}{{ nom_ecole }} - Tableau de bord{% endblock %}
+
+{% block extra_javascript %}
+  <!-- Chart.js (ajouté au-dessus des scripts de page) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+  <!-- En-tête page -->
+  <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-inline-flex align-items-center gap-1">
+        <span class="rounded-circle bg-primary d-inline-block" style="width:10px;height:10px;"></span>
+        <span class="rounded-circle bg-warning d-inline-block" style="width:10px;height:10px;"></span>
+        <span class="rounded-circle bg-danger d-inline-block" style="width:10px;height:10px;"></span>
+      </div>
+      <div>
+        <h4 class="mb-0 fw-semibold">{{ nom_ecole }}</h4>
+        <small class="text-muted">{{ ville_ecole }}, {{ pays_ecole }}</small>
+      </div>
+    </div>
+    <div class="mt-3 mt-md-0">
+      <a href="{% url 'comptes:choisir_ecole' %}" class="btn btn-sm btn-outline-secondary">
+        Changer d'école
+      </a>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="row g-3">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1 small">Effectif total</p>
+          <div class="d-flex align-items-baseline">
+            <h3 class="mb-0" id="effectif">-</h3>
+            <span class="ms-2 text-muted small">élèves</span>
+          </div>
         </div>
-    </header>
+      </div>
+    </div>
 
-    <!-- Main -->
-    <main class="mx-auto max-w-7xl px-4 py-8">
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <!-- Effectif -->
-            <div class="overflow-hidden rounded-xl bg-white p-6 shadow ring-1 ring-gray-200">
-                <dt class="truncate text-sm font-medium text-gray-500">Effectif total</dt>
-                <dd class="mt-2 flex items-baseline justify-between md:block lg:flex">
-                    <div class="flex items-baseline text-2xl font-semibold text-gray-900">
-                        <span id="effectif">-</span>
-                        <span class="ml-2 text-sm font-medium text-gray-500">élèves</span>
-                    </div>
-                </dd>
-            </div>
-
-            <!-- Classes -->
-            <div class="overflow-hidden rounded-xl bg-white p-6 shadow ring-1 ring-gray-200">
-                <dt class="truncate text-sm font-medium text-gray-500">Nombre de classes</dt>
-                <dd class="mt-2 flex items-baseline justify-between md:block lg:flex">
-                    <div class="flex items-baseline text-2xl font-semibold text-gray-900">
-                        <span id="n_classes">-</span>
-                        <span class="ml-2 text-sm font-medium text-gray-500">classes</span>
-                    </div>
-                </dd>
-            </div>
-
-            <!-- Total encaissé -->
-            <div class="overflow-hidden rounded-xl bg-white p-6 shadow ring-1 ring-gray-200">
-                <dt class="truncate text-sm font-medium text-gray-500">Total encaissé</dt>
-                <dd class="mt-2 flex items-baseline justify-between md:block lg:flex">
-                    <div class="flex items-baseline text-2xl font-semibold text-gray-900">
-                        <span id="total_encaisse">-</span>
-                    </div>
-                </dd>
-            </div>
-
-            <!-- Taux de présence -->
-            <div class="overflow-hidden rounded-xl bg-white p-6 shadow ring-1 ring-gray-200">
-                <dt class="truncate text-sm font-medium text-gray-500">Taux de présence du jour</dt>
-                <dd class="mt-2 flex items-baseline justify-between md:block lg:flex">
-                    <div class="flex items-baseline text-2xl font-semibold text-gray-900">
-                        <span id="taux_presence">-</span>
-                        <span class="ml-2 text-sm font-medium text-gray-500">%</span>
-                    </div>
-                </dd>
-            </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1 small">Nombre de classes</p>
+          <div class="d-flex align-items-baseline">
+            <h3 class="mb-0" id="n_classes">-</h3>
+            <span class="ms-2 text-muted small">classes</span>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Charts & Timeline -->
-        <div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <!-- Chart -->
-            <section class="rounded-xl bg-white p-6 shadow ring-1 ring-gray-200">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-base font-medium text-gray-900">Chiffre d'affaires mensuel</h3>
-                    <div class="flex -space-x-1">
-                        <span class="inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                        <span class="inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
-                        <span class="inline-block h-2 w-2 rounded-full bg-red-500"></span>
-                    </div>
-                </div>
-                <div class="mt-6">
-                    <canvas id="revenue_chart" class="max-h-80"></canvas>
-                </div>
-            </section>
-
-            <!-- Timeline -->
-            <section class="rounded-xl bg-white p-6 shadow ring-1 ring-gray-200">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-base font-medium text-gray-900">Activités récentes</h3>
-                    <div class="flex -space-x-1">
-                        <span class="inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                        <span class="inline-block h-2 w-2 rounded-full bg-yellow-500"></span>
-                        <span class="inline-block h-2 w-2 rounded-full bg-red-500"></span>
-                    </div>
-                </div>
-                <div class="mt-6 flow-root">
-                    <ul id="timeline" class="-mb-8">
-                        <li class="text-sm text-gray-500">Chargement des activités...</li>
-                    </ul>
-                </div>
-            </section>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1 small">Total encaissé</p>
+          <h3 class="mb-0" id="total_encaisse">-</h3>
         </div>
-    </main>
+      </div>
+    </div>
 
-    <script>
-    // Formattage des montants en USD
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat('fr-FR', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(amount);
-    }
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1 small">Taux de présence du jour</p>
+          <div class="d-flex align-items-baseline">
+            <h3 class="mb-0" id="taux_presence">-</h3>
+            <span class="ms-2 text-muted small">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // Mise à jour du dashboard
-    async function updateDashboard() {
-        try {
-            const response = await fetch('/dashboard/data/');
-            const data = await response.json();
+  <!-- Graph + Timeline -->
+  <div class="row g-4 mt-1">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <h6 class="mb-0">Chiffre d'affaires mensuel</h6>
+            <div class="d-inline-flex gap-1">
+              <span class="rounded-circle bg-primary d-inline-block" style="width:8px;height:8px;"></span>
+              <span class="rounded-circle bg-warning d-inline-block" style="width:8px;height:8px;"></span>
+              <span class="rounded-circle bg-danger d-inline-block" style="width:8px;height:8px;"></span>
+            </div>
+          </div>
+          <div class="mt-3" style="height:320px;">
+            <canvas id="revenue_chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            // Mise à jour des KPIs
-            document.getElementById('effectif').textContent = data.effectif;
-            document.getElementById('n_classes').textContent = data.n_classes;
-            document.getElementById('total_encaisse').textContent = formatCurrency(data.total_encaisse);
-            document.getElementById('taux_presence').textContent = data.taux_presence.toFixed(1);
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <h6 class="mb-0">Activités récentes</h6>
+            <div class="d-inline-flex gap-1">
+              <span class="rounded-circle bg-primary d-inline-block" style="width:8px;height:8px;"></span>
+              <span class="rounded-circle bg-warning d-inline-block" style="width:8px;height:8px;"></span>
+              <span class="rounded-circle bg-danger d-inline-block" style="width:8px;height:8px;"></span>
+            </div>
+          </div>
 
-            // Mise à jour du graphique
-            if (window.revenueChart) {
-                window.revenueChart.destroy();
-            }
+          <ul class="list-unstyled mt-3 mb-0" id="timeline">
+            <li class="text-muted small">Chargement des activités...</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
 
-            const ctx = document.getElementById('revenue_chart').getContext('2d');
-            window.revenueChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.chart.labels,
-                    datasets: [{
-                        label: 'Chiffre d\'affaires',
-                        data: data.chart.values,
-                        borderColor: '#2563eb',
-                        backgroundColor: '#3b82f620',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return formatCurrency(context.parsed.y);
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return formatCurrency(value);
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
+{% block javascript %}
+<script>
+// ---- Utils
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0
+  }).format(amount);
+}
 
-            // Mise à jour de la timeline
-            const timelineEl = document.getElementById('timeline');
-            const timelineHtml = data.timeline.map((message, index, array) => `
-                <li class="relative pb-8 ${index === array.length - 1 ? '' : 'pb-8'}">
-                    ${index !== array.length - 1 ? '<span class="absolute left-2 top-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>' : ''}
-                    <div class="relative flex items-start space-x-3">
-                        <div>
-                            <div class="relative px-1">
-                                <div class="flex h-4 w-4 items-center justify-center rounded-full bg-blue-100 ring-4 ring-white">
-                                    <div class="h-2 w-2 rounded-full bg-blue-600"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-sm text-gray-600">${message}</p>
-                        </div>
-                    </div>
-                </li>
-            `).join('');
+// ---- State
+let revenueChart = null;
 
-            timelineEl.innerHTML = timelineHtml;
+async function updateDashboard() {
+  try {
+    const res = await fetch("{% url 'comptes:dashboard_data' %}" || '/dashboard/data/');
+    const data = await res.json();
 
-        } catch (error) {
-            console.error('Erreur lors de la mise à jour du dashboard:', error);
-        }
-    }
+    // KPIs
+    document.getElementById('effectif').textContent      = data.effectif ?? '-';
+    document.getElementById('n_classes').textContent     = data.n_classes ?? '-';
+    document.getElementById('total_encaisse').textContent= formatCurrency(data.total_encaisse ?? 0);
+    document.getElementById('taux_presence').textContent = Number(data.taux_presence ?? 0).toFixed(1);
 
-    // Mise à jour initiale
-    updateDashboard();
+    // Chart
+    const ctx = document.getElementById('revenue_chart').getContext('2d');
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.chart?.labels ?? [],
+        datasets: [{
+          label: "Chiffre d'affaires",
+          data: data.chart?.values ?? [],
+          borderColor: '#0d6efd',
+          backgroundColor: 'rgba(13,110,253,0.12)',
+          pointRadius: 3,
+          fill: true,
+          tension: 0.35
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => formatCurrency(ctx.parsed.y) }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { callback: v => formatCurrency(v) },
+            grid: { color: 'rgba(0,0,0,0.06)' }
+          },
+          x: { grid: { display: false } }
+        },
+        interaction: { mode: 'index', intersect: false }
+      }
+    });
 
-    // Mise à jour toutes les 30 secondes
-    setInterval(updateDashboard, 30000);
-    </script>
-</body>
-</html>
+    // Timeline
+    const list = document.getElementById('timeline');
+    const items = (data.timeline ?? []).map((msg, i, arr) => `
+      <li class="position-relative ps-4 mb-3">
+        ${i !== arr.length - 1 ? '<span class="position-absolute top-0 start-0 translate-middle-y" style="left:6px; height:100%; width:1px; background:#e9ecef;"></span>' : ''}
+        <span class="position-absolute start-0 translate-middle-y rounded-circle bg-primary" style="width:8px;height:8px; top:10px;"></span>
+        <span class="small text-muted">${msg}</span>
+      </li>
+    `).join('');
+    list.innerHTML = items || '<li class="text-muted small">Aucune activité récente.</li>';
+
+  } catch (e) {
+    console.error('Erreur dashboard:', e);
+  }
+}
+
+// Initial + refresh
+updateDashboard();
+setInterval(updateDashboard, 30000);
+</script>
+{% endblock %}
