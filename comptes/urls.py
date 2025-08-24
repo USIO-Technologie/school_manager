@@ -16,7 +16,7 @@ urlpatterns = [
     # path('', views.HomeView.as_view(), name='home'),
     path("", views.CustomLoginView.as_view(), name="login"),
 
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("logout/", auth_views.LogoutView.as_view(next_page="comptes:login"), name="logout"),
     path("register/", views.RegisterView.as_view(), name="register"),
     path("choisir-ecole/", views.ChoisirEcoleView.as_view(), name="choisir_ecole"),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),

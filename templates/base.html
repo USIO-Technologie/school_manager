@@ -129,9 +129,13 @@
                             </a>
 
                             <div class="dropdown-divider mb-0"></div>
-                            <a class="dropdown-item text-danger" href="{% url 'comptes:logout' %}">
-                              <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Déconnexion
-                            </a>
+                            <form method="post" action="{% url 'comptes:logout' %}" class="m-0">
+                              {% csrf_token %}
+                              <input type="hidden" name="next" value="{% url 'comptes:login' %}"> {# optionnel #}
+                              <button type="submit" class="dropdown-item text-danger w-100 text-start">
+                                <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Déconnexion
+                              </button>
+                            </form>
                           </div>
                         </li>
                         {% else %}
