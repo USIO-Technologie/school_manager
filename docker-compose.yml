@@ -11,7 +11,7 @@ services:
       - .:/app                              # Monte le code source local dans le conteneur
       - ./staticfiles:/app/staticfiles      # Dossier partagé pour les fichiers statiques collectés
     ports:
-      - "8004:8000"                         # Expose le port 8000 du conteneur sur le port 8004 de l’hôte
+      - "8005:8000"                         # Expose le port 8000 du conteneur sur le port 8004 de l’hôte
     restart: always                         # Redémarre automatiquement en cas de crash
     env_file:
       - .env                                # Fichier contenant les variables d’environnement
