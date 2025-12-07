@@ -85,7 +85,7 @@ services:
       POSTGRES_USER: school_manager_user
       POSTGRES_PASSWORD: ${DB_PASSWORD}  # Utiliser une variable d’environnement pour la sécurité
     volumes:
-      - /apps/school_manager/postgres_data:/var/lib/postgresql/data   #  Stockage persistant sur disque
+      - /apps/usio/school_manager/postgres_data:/var/lib/postgresql/data   #  Stockage persistant sur disque
     networks:
       - web_network
 
