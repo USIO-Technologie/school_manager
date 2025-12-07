@@ -1,0 +1,322 @@
+{% load static %}
+
+<!-- Cartes de statistiques globales -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.total_users|default:0 }}</h3>
+                        <p class="mb-0">Utilisateurs totaux</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-users fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.total_students|default:0 }}</h3>
+                        <p class="mb-0">Étudiants</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-user-graduate fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.total_teachers|default:0 }}</h3>
+                        <p class="mb-0">Enseignants</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chalkboard-teacher fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.pending_verifications|default:0 }}</h3>
+                        <p class="mb-0">Vérifications en attente</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.total_parents|default:0 }}</h3>
+                        <p class="mb-0">Parents</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-user-friends fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.total_classes|default:0 }}</h3>
+                        <p class="mb-0">Classes</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chalkboard fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.total_subjects|default:0 }}</h3>
+                        <p class="mb-0">Matières</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-book fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ stats.total_verifications|default:0 }}</h3>
+                        <p class="mb-0">Total vérifications</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Répartition des notes -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>Répartition des notes</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.grade_distribution %}
+                <div id="gradeDistributionChart" style="min-height: 300px;"></div>
+                {% else %}
+                <p class="text-muted text-center">Aucune donnée disponible</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Répartition des utilisateurs -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-doughnut me-2"></i>Répartition des utilisateurs</h5>
+            </div>
+            <div class="card-body">
+                <div id="usersDistributionChart" style="min-height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Activités récentes -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-history me-2"></i>Activités récentes</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.recent_profiles %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Rôle</th>
+                                <th>Date de création</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for profile in dashboard_data.recent_profiles %}
+                            <tr>
+                                <td>{{ profile.full_name|default:profile.user.username }}</td>
+                                <td>
+                                    {% if profile.role %}
+                                        <span class="badge bg-info">{{ profile.get_role_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Non défini</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ profile.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if profile.is_active %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactif</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune activité récente</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Vérifications en attente -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-clock me-2"></i>Vérifications en attente</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.pending_verifications > 0 %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>{{ stats.pending_verifications }}</strong> vérification(s) en attente
+                </div>
+                <a href="{% url 'app_profile:verification_management' %}" class="btn btn-warning w-100">
+                    <i class="fas fa-eye me-1"></i> Voir les vérifications
+                </a>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Aucune vérification en attente
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'app_profile:profile_list' %}" class="btn btn-primary">
+                        <i class="fas fa-users me-1"></i> Liste des profils
+                    </a>
+                    <a href="{% url 'app_profile:verification_management' %}" class="btn btn-warning">
+                        <i class="fas fa-check-circle me-1"></i> Vérifications
+                    </a>
+                    <a href="{% url 'app_profile:roles_management' %}" class="btn btn-info">
+                        <i class="fas fa-user-tag me-1"></i> Gestion des rôles
+                    </a>
+                    <a href="{% url 'app_profile:profile_view' %}" class="btn btn-success">
+                        <i class="fas fa-id-card me-1"></i> Mon profil
+                    </a>
+                    <a href="/jiwe/" class="btn btn-secondary">
+                        <i class="fas fa-cog me-1"></i> Administration
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_javascript %}
+{{ dashboard_data.grade_distribution|json_script:"grade-distribution-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique de répartition des notes
+    var distributionElement = document.getElementById('grade-distribution-data');
+    if (distributionElement) {
+        var distribution = JSON.parse(distributionElement.textContent);
+    var distributionOptions = {
+        series: [distribution.excellent, distribution.good, distribution.average, distribution.poor],
+        chart: {
+            type: 'donut',
+            height: 300
+        },
+        labels: ['Excellent (≥16)', 'Bien (14-16)', 'Moyen (10-14)', 'Faible (<10)'],
+        colors: ['#34c38f', '#556ee6', '#f1b44c', '#f46a6a'],
+        legend: {
+            position: 'bottom'
+        }
+    };
+    
+        var distributionChart = new ApexCharts(document.querySelector("#gradeDistributionChart"), distributionOptions);
+        distributionChart.render();
+    }
+    
+    // Graphique de répartition des utilisateurs
+    var usersData = {
+        students: {{ stats.total_students|default:0 }},
+        teachers: {{ stats.total_teachers|default:0 }},
+        parents: {{ stats.total_parents|default:0 }}
+    };
+    
+    var usersOptions = {
+        series: [usersData.students, usersData.teachers, usersData.parents],
+        chart: {
+            type: 'donut',
+            height: 300
+        },
+        labels: ['Étudiants', 'Enseignants', 'Parents'],
+        colors: ['#34c38f', '#556ee6', '#f1b44c'],
+        legend: {
+            position: 'bottom'
+        }
+    };
+    
+    var usersChart = new ApexCharts(document.querySelector("#usersDistributionChart"), usersOptions);
+    usersChart.render();
+});
+</script>
+{% endblock %}
+

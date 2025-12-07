@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails du justificatif{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails du justificatif</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_attendance:excuse_update' excuse.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_attendance:excuse_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Élève</th>
+                        <td>{{ excuse.absence.student.profile.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Absence</th>
+                        <td>Du {{ excuse.absence.start_date|date:"d/m/Y" }} au {{ excuse.absence.end_date|date:"d/m/Y"|default:excuse.absence.start_date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Raison</th>
+                        <td>{{ excuse.reason|default:"-"|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if excuse.status == 'approved' %}
+                                <span class="badge bg-success">Approuvé</span>
+                            {% elif excuse.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejeté</span>
+                            {% else %}
+                                <span class="badge bg-warning">En attente</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if excuse.document %}
+                    <tr>
+                        <th>Document</th>
+                        <td>
+                            <a href="{{ excuse.document.url }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fas fa-file me-1"></i> Voir le document
+                            </a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% if excuse.reviewed_by %}
+                    <tr>
+                        <th>Examiné par</th>
+                        <td>{{ excuse.reviewed_by.profile.full_name }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if excuse.reviewed_at %}
+                    <tr>
+                        <th>Date d'examen</th>
+                        <td>{{ excuse.reviewed_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ excuse.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

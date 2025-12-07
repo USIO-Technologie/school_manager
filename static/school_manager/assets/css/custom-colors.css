@@ -1,0 +1,386 @@
+/**
+ * Custom Colors - Blue, White, Black Theme
+ * School Manager Application
+ */
+
+:root {
+    /* Primary Blue Colors */
+    --primary-blue: #2563eb;
+    --primary-blue-dark: #1e40af;
+    --primary-blue-light: #3b82f6;
+    --primary-blue-lighter: #60a5fa;
+    
+    /* Neutral Colors */
+    --white: #ffffff;
+    --black: #000000;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    
+    /* Text Colors */
+    --text-primary: #000000;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-dark: #000000;
+}
+
+/* Override Bootstrap Primary Colors */
+.btn-primary,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+    color: var(--white) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-blue-dark) !important;
+    border-color: var(--primary-blue-dark) !important;
+}
+
+.btn-outline-primary {
+    color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-blue) !important;
+    border-color: var(--primary-blue) !important;
+    color: var(--white) !important;
+}
+
+/* Links */
+a {
+    color: var(--primary-blue);
+}
+
+a:hover {
+    color: var(--primary-blue-dark);
+}
+
+/* Text Primary */
+.text-primary {
+    color: var(--primary-blue) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-blue) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-blue) !important;
+}
+
+/* Badges */
+.badge.bg-primary {
+    background-color: var(--primary-blue) !important;
+}
+
+.badge.bg-primary-subtle {
+    background-color: rgba(37, 99, 235, 0.1) !important;
+    color: var(--primary-blue) !important;
+}
+
+/* Cards */
+.card {
+    border-color: var(--gray-200);
+}
+
+.card-header {
+    background-color: var(--bg-primary);
+    border-bottom-color: var(--gray-200);
+}
+
+/* Forms */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+/* Navbar/Topbar */
+.navbar-brand,
+.topbar-custom {
+    color: var(--text-primary);
+}
+
+.nav-link:hover,
+.nav-link.active,
+.nav-link:focus {
+    color: var(--primary-blue) !important;
+}
+
+.nav-link:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Sidebar - Startbar */
+.startbar {
+    background-color: var(--bg-primary);
+    border-right-color: var(--gray-200);
+}
+
+.startbar .nav-link {
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.startbar .nav-link:hover {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+.startbar .nav-link:focus {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.15);
+    outline: 2px solid var(--primary-blue);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.startbar .nav-link.active {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.15);
+}
+
+.startbar .nav-link.active:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Sidebar menu items with children (collapse) */
+.startbar .nav-link[data-bs-toggle="collapse"]:focus,
+.startbar .nav-link[aria-expanded="true"]:focus {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.15);
+    outline: 2px solid var(--primary-blue);
+    outline-offset: -2px;
+}
+
+.startbar .nav-link[aria-expanded="true"] {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+/* Sidebar submenu items */
+.startbar .collapse .nav-link {
+    color: var(--text-secondary);
+    padding-left: 2.5rem;
+}
+
+.startbar .collapse .nav-link:hover {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+.startbar .collapse .nav-link:focus {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.15);
+    outline: 2px solid var(--primary-blue);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.startbar .collapse .nav-link.active {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.15);
+}
+
+.startbar .collapse .nav-link.active:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Sidebar menu icon */
+.startbar .nav-link .menu-icon {
+    transition: color 0.3s ease;
+}
+
+.startbar .nav-link:hover .menu-icon,
+.startbar .nav-link:focus .menu-icon,
+.startbar .nav-link.active .menu-icon {
+    color: var(--primary-blue);
+}
+
+/* Legacy sidebar classes (if used) */
+.sidebar {
+    background-color: var(--bg-primary);
+    border-right-color: var(--gray-200);
+}
+
+.sidebar-menu .nav-link {
+    color: var(--text-primary);
+}
+
+.sidebar-menu .nav-link:hover,
+.sidebar-menu .nav-link.active,
+.sidebar-menu .nav-link:focus {
+    color: var(--primary-blue) !important;
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+.sidebar-menu .nav-link:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Tables */
+.table thead th {
+    background-color: var(--gray-50);
+    color: var(--text-primary);
+    border-bottom-color: var(--gray-200);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* Pagination */
+.page-link {
+    color: var(--primary-blue);
+    border-color: var(--gray-300);
+}
+
+.page-link:hover {
+    color: var(--primary-blue-dark);
+    background-color: var(--gray-50);
+    border-color: var(--gray-300);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+/* Alerts */
+.alert-primary {
+    background-color: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.2);
+    color: var(--primary-blue-dark);
+}
+
+/* Dropdown */
+.dropdown-menu {
+    border-color: var(--gray-200);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(37, 99, 235, 0.1);
+    color: var(--primary-blue);
+}
+
+/* Login Page Specific */
+.auth-header-box {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%) !important;
+}
+
+.bg-black {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%) !important;
+}
+
+/* Buttons with gradient */
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+    border: none;
+    color: var(--white);
+}
+
+.btn-gradient-primary:hover {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+    color: var(--white);
+}
+
+/* Progress bars */
+.progress-bar {
+    background-color: var(--primary-blue);
+}
+
+/* Breadcrumbs */
+.breadcrumb-item.active {
+    color: var(--text-primary);
+}
+
+.breadcrumb-item a {
+    color: var(--primary-blue);
+}
+
+/* Tabs */
+.nav-tabs .nav-link.active {
+    color: var(--primary-blue);
+    border-bottom-color: var(--primary-blue);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary-blue);
+    border-color: var(--gray-200);
+}
+
+/* Modals */
+.modal-header {
+    border-bottom-color: var(--gray-200);
+}
+
+.modal-footer {
+    border-top-color: var(--gray-200);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-blue);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-blue-dark);
+}
+
+/* Focus states */
+*:focus {
+    outline-color: var(--primary-blue);
+}
+
+/* Selection */
+::selection {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+/* Dark mode overrides (if needed) */
+[data-bs-theme="dark"] {
+    --bg-primary: #1f2937;
+    --bg-secondary: #111827;
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+}
+

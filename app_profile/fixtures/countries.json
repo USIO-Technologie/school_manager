@@ -1,0 +1,47 @@
+[
+  {
+    "model": "app_profile.country",
+    "pk": 1,
+    "fields": {
+      "name": "France",
+      "code": "FRA",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "app_profile.country",
+    "pk": 2,
+    "fields": {
+      "name": "United States",
+      "code": "USA",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "app_profile.country",
+    "pk": 3,
+    "fields": {
+      "name": "Canada",
+      "code": "CAN",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "app_profile.country",
+    "pk": 4,
+    "fields": {
+      "name": "United Kingdom",
+      "code": "GBR",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "app_profile.country",
+    "pk": 5,
+    "fields": {
+      "name": "Germany",
+      "code": "DEU",
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  }
+]

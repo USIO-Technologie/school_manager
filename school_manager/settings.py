@@ -51,13 +51,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'academiques',
-    'communication',
-    'comptes',
-    'ecoles',
-    'finance',
-    'presence',
+    'app_config',
+    'app_profile',
+    'app_academic',  # Gestion académique (classes, matières, emploi du temps)
+    'app_grades',  # Gestion des notes et évaluations
+    'app_attendance',  # Gestion des présences et absences
     'import_export',
+    # 'django_celery_results',  # Backend de résultats pour Celery (désactivé temporairement si non installé)
 ]
 
 MIDDLEWARE = [
@@ -66,9 +66,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    
-    'comptes.middleware.SchoolMiddleware',
-    
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
@@ -87,6 +84,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'app_config.context_processors.user_permissions',
+                'app_config.context_processors.navigation_menu',
             ],
         },
     },
@@ -170,4 +169,36 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # EMAIL_HOST_USER = 'nsoleoslo15@gmail.com'
 # EMAIL_HOST_PASSWORD = 'rcyvewmvbbwavlin'
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# ==================== Configuration Celery ====================
+# URL du broker Redis
+# Pour développement local: 'redis://localhost:6379/0'
+# Pour Docker: 'redis://redis:6379/0'
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+
+# Backend de résultats (stockage dans la base de données Django)
+CELERY_RESULT_BACKEND = 'django-db'
+
+# Format de sérialisation
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Configuration du timezone
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_ENABLE_UTC = True
+
+# Suivi des tâches
+CELERY_TASK_TRACK_STARTED = True
+
+# Limites de temps pour les tâches (en secondes)
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
+
+# Configuration des workers
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000
+
+# Mode eager (exécution synchrone) - False pour production, True pour tests
+CELERY_TASK_ALWAYS_EAGER = False
 

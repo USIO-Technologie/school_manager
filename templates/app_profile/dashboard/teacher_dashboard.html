@@ -1,0 +1,342 @@
+{% load static %}
+
+<!-- Cartes de statistiques -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ dashboard_data.classes_taught|length|default:0 }}</h3>
+                        <p class="mb-0">Classes enseignées</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chalkboard-teacher fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ dashboard_data.assessments_to_grade|length|default:0 }}</h3>
+                        <p class="mb-0">Évaluations à corriger</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-clipboard-check fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">
+                            {% if dashboard_data.class_stats %}
+                                {% for stat in dashboard_data.class_stats %}
+                                    {{ stat.total_students|default:0 }}{% if not forloop.last %} + {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </h3>
+                        <p class="mb-0">Total élèves</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-users fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ dashboard_data.today_courses|length|default:0 }}</h3>
+                        <p class="mb-0">Cours aujourd'hui</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-calendar-day fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Statistiques des notes par classe -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>Moyennes par classe</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.class_stats %}
+                <div id="classStatsChart" style="min-height: 300px;"></div>
+                {% else %}
+                <p class="text-muted text-center">Aucune statistique disponible</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Répartition des notes -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>Répartition des notes</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.class_stats %}
+                <div id="gradeDistributionChart" style="min-height: 300px;"></div>
+                {% else %}
+                <p class="text-muted text-center">Aucune donnée disponible</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Évaluations à corriger -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Évaluations à corriger</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.assessments_to_grade %}
+                <div class="list-group">
+                    {% for assessment in dashboard_data.assessments_to_grade %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ assessment.name }}</h6>
+                                <p class="mb-1 text-muted">{{ assessment.subject.name }} - {{ assessment.class_section.name }}</p>
+                                <small class="text-muted">{{ assessment.date|date:"d/m/Y" }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-warning">À corriger</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune évaluation à corriger</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Prochains cours -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-clock me-2"></i>Prochains cours - Aujourd'hui</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.today_courses %}
+                <div class="list-group">
+                    {% for course in dashboard_data.today_courses %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ course.subject.name }}</h6>
+                                <small class="text-muted">{{ course.class_section.name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-info">{{ course.start_time|time:"H:i" }} - {{ course.end_time|time:"H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucun cours aujourd'hui</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Classes enseignées -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chalkboard me-2"></i>Classes enseignées</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.classes_taught %}
+                <div class="list-group">
+                    {% for class_obj in dashboard_data.classes_taught %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ class_obj.name }}</h6>
+                                <small class="text-muted">{{ class_obj.grade.name }} - {{ class_obj.academic_year.name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary">{{ class_obj.get_students_count }} élèves</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune classe assignée</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Absences récentes des élèves -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-user-times me-2"></i>Absences récentes</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.recent_absences %}
+                <div class="list-group">
+                    {% for absence in dashboard_data.recent_absences %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ absence.student.profile.full_name|default:absence.student.profile.user.username }}</h6>
+                                <p class="mb-1 text-muted">{{ absence.student.class_section.name }}</p>
+                                <small class="text-muted">{{ absence.start_date|date:"d/m/Y" }}{% if absence.end_date %} - {{ absence.end_date|date:"d/m/Y" }}{% endif %}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge {% if absence.is_justified %}bg-success{% else %}bg-danger{% endif %}">
+                                    {% if absence.is_justified %}Justifiée{% else %}Non justifiée{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune absence récente</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'app_profile:my_teacher_profile' %}" class="btn btn-primary">
+                        <i class="fas fa-user me-1"></i> Mon profil enseignant
+                    </a>
+                    <a href="{% url 'app_profile:profile_view' %}" class="btn btn-info">
+                        <i class="fas fa-id-card me-1"></i> Mon profil
+                    </a>
+                    {% if can_edit_profile %}
+                    <a href="{% url 'app_profile:profile_update' %}" class="btn btn-warning">
+                        <i class="fas fa-edit me-1"></i> Modifier mon profil
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_javascript %}
+{{ dashboard_data.class_stats|json_script:"class-stats-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique des moyennes par classe
+    var classStatsElement = document.getElementById('class-stats-data');
+    if (classStatsElement) {
+        var classStats = JSON.parse(classStatsElement.textContent);
+    var classNames = classStats.map(function(item) { return item.class ? item.class.name : 'Classe ' + item.class.id; });
+    var averages = classStats.map(function(item) { return item.average || 0; });
+    
+    var classStatsOptions = {
+        series: [{
+            name: 'Moyenne',
+            data: averages
+        }],
+        chart: {
+            type: 'bar',
+            height: 300,
+            toolbar: { show: false }
+        },
+        xaxis: {
+            categories: classNames
+        },
+        yaxis: {
+            min: 0,
+            max: 20,
+            title: { text: 'Moyenne' }
+        },
+        colors: ['#556ee6'],
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                dataLabels: {
+                    position: 'top'
+                }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val.toFixed(2);
+            }
+        }
+    };
+    
+    var classStatsChart = new ApexCharts(document.querySelector("#classStatsChart"), classStatsOptions);
+    classStatsChart.render();
+    
+    // Graphique de répartition des notes
+    var gradeDistribution = {
+        excellent: classStats.reduce(function(sum, item) { return sum + (item.average >= 16 ? 1 : 0); }, 0),
+        good: classStats.reduce(function(sum, item) { return sum + (item.average >= 14 && item.average < 16 ? 1 : 0); }, 0),
+        average: classStats.reduce(function(sum, item) { return sum + (item.average >= 10 && item.average < 14 ? 1 : 0); }, 0),
+        poor: classStats.reduce(function(sum, item) { return sum + (item.average < 10 ? 1 : 0); }, 0)
+    };
+    
+    var distributionOptions = {
+        series: [gradeDistribution.excellent, gradeDistribution.good, gradeDistribution.average, gradeDistribution.poor],
+        chart: {
+            type: 'donut',
+            height: 300
+        },
+        labels: ['Excellent (≥16)', 'Bien (14-16)', 'Moyen (10-14)', 'Faible (<10)'],
+        colors: ['#34c38f', '#556ee6', '#f1b44c', '#f46a6a'],
+        legend: {
+            position: 'bottom'
+        }
+    };
+    
+        var distributionChart = new ApexCharts(document.querySelector("#gradeDistributionChart"), distributionOptions);
+        distributionChart.render();
+    }
+});
+</script>
+{% endblock %}
+

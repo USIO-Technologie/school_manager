@@ -16,6 +16,8 @@
      <link href="{% static 'school_manager/assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
      <link href="{% static 'school_manager/assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
      <link href="{% static 'school_manager/assets/css/app.min.css' %}" rel="stylesheet" type="text/css" />
+     <!-- Custom Colors -->
+     <link href="{% static 'school_manager/assets/css/custom-colors.css' %}" rel="stylesheet" type="text/css" />
     {% block extra_css %} 
     {% endblock %} 
     {% block extra_javascript %} 
@@ -23,6 +25,7 @@
 </head>
 <body>
     <!-- Top Bar Start -->
+    {% block navbar %}
     <div class="topbar d-print-none">
         <div class="container-xxl">
             <nav class="topbar-custom d-flex justify-content-between" id="topbar-custom">    
@@ -35,7 +38,7 @@
                         </button>
                     </li> 
                     <li class="mx-3 welcome-text">
-                        <h3 class="mb-0 fw-bold text-truncate">Good Morning, {{ request.user.profil.nom }}</h3>
+                        <h3 class="mb-0 fw-bold text-truncate">Bonjour, {{ user_full_name|default:request.user.username }}</h3>
                         <!-- <h6 class="mb-0 fw-normal text-muted text-truncate fs-14">Here's your overview this week.</h6> -->
                     </li>                   
                 </ul>
@@ -70,7 +73,7 @@
                             <ul class="nav nav-tabs nav-tabs-custom nav-success nav-justified mb-1" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <a class="nav-link mx-0 active" data-bs-toggle="tab" href="index.html#All" role="tab" aria-selected="true">
-                                        All <span class="badge bg-primary-subtle text-primary badge-pill ms-1">24</span>
+                                        All <span class="badge bg-primary-subtle text-primary badge-pill ms-1" style="background-color: rgba(37, 99, 235, 0.1) !important; color: #2563eb !important;">24</span>
                                     </a>
                                 </li>
                                 <li class="nav-item" role="presentation">
@@ -91,25 +94,25 @@
                         <li class="dropdown topbar-item">
                           <a class="nav-link dropdown-toggle arrow-none nav-icon" data-bs-toggle="dropdown" href="#" role="button"
                              aria-haspopup="false" aria-expanded="false">
-                            {% if request.user.profil and request.user.profil.photo %}
-                              <img src="{{ request.user.profil.photo.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}" class="thumb-lg rounded-circle">
+                            {% if user_photo %}
+                              <img src="{{ user_photo.url }}" alt="{{ user_full_name|default:request.user.username }}" class="thumb-lg rounded-circle">
                             {% else %}
-                              <img src="{% static 'school_manager/assets/images/avatar.jpg' %}" alt="{{ request.user.get_full_name|default:request.user.username }}" class="thumb-lg rounded-circle">
+                              <img src="{% static 'school_manager/assets/images/avatar.jpg' %}" alt="{{ user_full_name|default:request.user.username }}" class="thumb-lg rounded-circle">
                             {% endif %}
                           </a>
 
                           <div class="dropdown-menu dropdown-menu-end py-0">
                             <div class="d-flex align-items-center dropdown-item py-2 bg-secondary-subtle">
                               <div class="flex-shrink-0">
-                                {% if request.user.profil and request.user.profil.photo %}
-                                  <img src="{{ request.user.profil.photo.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}" class="thumb-md rounded-circle">
+                                {% if user_photo %}
+                                  <img src="{{ user_photo.url }}" alt="{{ user_full_name|default:request.user.username }}" class="thumb-md rounded-circle">
                                 {% else %}
-                                  <img src="{% static 'school_manager/assets/images/avatar.jpg' %}" alt="{{ request.user.get_full_name|default:request.user.username }}" class="thumb-md rounded-circle">
+                                  <img src="{% static 'school_manager/assets/images/avatar.jpg' %}" alt="{{ user_full_name|default:request.user.username }}" class="thumb-md rounded-circle">
                                 {% endif %}
                               </div>
                               <div class="flex-grow-1 ms-2 text-truncate align-self-center">
                                 <h6 class="my-0 fw-medium text-dark fs-13">
-                                  {{ request.user.profil.nom|default:request.user.username }}
+                                  {{ user_full_name|default:request.user.username }}
                                 </h6>
                                 <small class="text-muted mb-0">
                                   {{ request.user.email|default:"Connecté(e)" }}
@@ -120,18 +123,18 @@
                             <div class="dropdown-divider mt-0"></div>
                             <small class="text-muted px-2 pb-1 d-block">Compte</small>
 
-                            <!-- Exemples d’actions -->
-                            <a class="dropdown-item" href="{% url 'comptes:choisir_ecole' %}">
-                              <i class="las la-school fs-18 me-1 align-text-bottom"></i> Changer d'école
-                            </a>
-                            <a class="dropdown-item" href="javascript:void(0);">
+                            <!-- Exemples d'actions -->
+                            <a class="dropdown-item" href="{% url 'app_profile:profile_view' %}">
                               <i class="las la-user fs-18 me-1 align-text-bottom"></i> Mon profil
+                            </a>
+                            <a class="dropdown-item" href="{% url 'app_profile:settings' %}">
+                              <i class="las la-cog fs-18 me-1 align-text-bottom"></i> Paramètres
                             </a>
 
                             <div class="dropdown-divider mb-0"></div>
-                            <form method="post" action="{% url 'comptes:logout' %}" class="m-0">
+                            <form method="post" action="{% url 'app_profile:logout' %}" class="m-0">
                               {% csrf_token %}
-                              <input type="hidden" name="next" value="{% url 'comptes:login' %}"> {# optionnel #}
+                              <input type="hidden" name="next" value="{% url 'app_profile:login' %}"> {# optionnel #}
                               <button type="submit" class="dropdown-item text-danger w-100 text-start">
                                 <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Déconnexion
                               </button>
@@ -140,7 +143,7 @@
                         </li>
                         {% else %}
                         <li class="topbar-item">
-                          <a class="btn btn-sm btn-primary" href="{% url 'comptes:login' %}">Se connecter</a>
+                          <a class="btn btn-sm btn-primary" href="{% url 'app_profile:login' %}">Se connecter</a>
                         </li>
                         {% endif %}
                 </ul><!--end topbar-nav-->
@@ -148,8 +151,10 @@
             <!-- end navbar-->
         </div>
     </div>
+    {% endblock %}
     <!-- Top Bar End -->
     <!-- leftbar-tab-menu -->
+    {% block sidebar %}
     <div class="startbar d-print-none">
         <!--start brand-->
         <div class="brand">
@@ -175,55 +180,68 @@
                                 <div class="border_left hidden-xs"></div>
                                 <div class="border_right"></div>
                             </small> -->
-                            <span>Main Menu</span>
+                            <span>Menu Principal</span>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html#sidebarDashboards" data-bs-toggle="collapse" role="button"
-                                aria-expanded="false" aria-controls="sidebarDashboards">
-                                <i class="iconoir-home-simple menu-icon"></i>
-                                <span>Dashboards</span>
-                            </a>
-                            <div class="collapse " id="sidebarDashboards">
-                                <ul class="nav flex-column">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="index.html">Analytics</a>
-                                    </li><!--end nav-item-->
-                                </ul><!--end nav-->
-                            </div><!--end startbarDashboards-->
-                        </li><!--end nav-item-->
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html#sidebarApplications" data-bs-toggle="collapse" role="button"
-                                aria-expanded="false" aria-controls="sidebarApplications">
-                                <i class="iconoir-view-grid menu-icon"></i>
-                                <span>Applications</span>
-                            </a>
-                            <div class="collapse " id="sidebarApplications">
-                                <ul class="nav flex-column">
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="index.html#sidebarAnalytics" data-bs-toggle="collapse" role="button"
-                                            aria-expanded="false" aria-controls="sidebarAnalytics">                                        
-                                            <span>Analytics</span>
-                                        </a>
-                                        <div class="collapse " id="sidebarAnalytics">
-                                            <ul class="nav flex-column">
+                        {% for menu_item in sidebar_menu %}
+                            <li class="nav-item">
+                                {% if menu_item.url %}
+                                    {# Menu item avec URL directe (pas de sous-menu) #}
+                                    <a class="nav-link {% if menu_item.is_active %}active{% endif %}" href="{{ menu_item.url }}">
+                                        {% if menu_item.icon %}
+                                            <i class="{{ menu_item.icon }} menu-icon"></i>
+                                        {% endif %}
+                                        <span>{{ menu_item.title }}</span>
+                                    </a>
+                                {% elif menu_item.children %}
+                                    {# Menu item avec sous-menus #}
+                                    {% with menu_id="sidebar"|add:menu_item.title|slugify %}
+                                    <a class="nav-link {% if menu_item.is_active %}active{% endif %}" href="#{{ menu_id }}" data-bs-toggle="collapse" role="button"
+                                        aria-expanded="{% if menu_item.is_active %}true{% else %}false{% endif %}" aria-controls="{{ menu_id }}">
+                                        {% if menu_item.icon %}
+                                            <i class="{{ menu_item.icon }} menu-icon"></i>
+                                        {% endif %}
+                                        <span>{{ menu_item.title }}</span>
+                                    </a>
+                                    <div class="collapse {% if menu_item.is_active %}show{% endif %}" id="{{ menu_id }}">
+                                        <ul class="nav flex-column">
+                                            {% for child in menu_item.children %}
                                                 <li class="nav-item">
-                                                    <a href="analytics-customers.html" class="nav-link ">Customers</a>
+                                                    <a class="nav-link {% if request.path == child.url %}active{% endif %}" href="{{ child.url }}">
+                                                        {{ child.title }}
+                                                    </a>
                                                 </li><!--end nav-item-->
-                                                <li class="nav-item">
-                                                    <a href="analytics-reports.html" class="nav-link ">Reports</a>
-                                                </li><!--end nav-item-->
-                                            </ul><!--end nav-->
-                                        </div>
-                                    </li><!--end nav-item-->
-                                </ul><!--end nav-->
-                            </div><!--end startbarApplications-->
-                        </li><!--end nav-item-->
+                                            {% endfor %}
+                                        </ul><!--end nav-->
+                                    </div><!--end {{ menu_id }}-->
+                                    {% endwith %}
+                                {% else %}
+                                    {# Menu item sans URL ni enfants (désactivé) #}
+                                    <a class="nav-link disabled" href="#">
+                                        {% if menu_item.icon %}
+                                            <i class="{{ menu_item.icon }} menu-icon"></i>
+                                        {% endif %}
+                                        <span>{{ menu_item.title }}</span>
+                                    </a>
+                                {% endif %}
+                            </li><!--end nav-item-->
+                        {% empty %}
+                            {# Aucun menu disponible #}
+                            {% if request.user.is_authenticated %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'app_profile:standard_dashboard' %}">
+                                        <i class="iconoir-home-simple menu-icon"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
                     </ul><!--end navbar-nav--->
                 </div>
             </div><!--end startbar-collapse-->
         </div><!--end startbar-menu-->    
     </div><!--end startbar-->
     <div class="startbar-overlay d-print-none"></div>
+    {% endblock %}
     <!-- end leftbar-tab-menu-->
 
     <div class="page-wrapper">

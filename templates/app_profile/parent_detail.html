@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Fiche parent{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if parent.profile.photo %}
+                    <img src="{{ parent.profile.photo.url }}" alt="{{ parent.profile.full_name }}" class="rounded-circle mb-3" width="150" height="150">
+                {% else %}
+                    <img src="{% static 'school_manager/assets/images/avatar.jpg' %}" alt="{{ parent.profile.full_name }}" class="rounded-circle mb-3" width="150" height="150">
+                {% endif %}
+                <h4>{{ parent.profile.full_name }}</h4>
+                <p class="text-muted">{{ parent.profile.user.email|default:"-" }}</p>
+                <span class="badge bg-secondary">Parent</span>
+                <div class="mt-3">
+                    <a href="{% url 'app_profile:parent_update' parent.pk %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit me-1"></i> Modifier
+                    </a>
+                    <a href="{% url 'app_profile:parent_list' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Informations parent</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Numéro de parent</th>
+                        <td>{{ parent.parent_number|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Type de relation</th>
+                        <td>{{ parent.get_relationship_type_display|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Profession</th>
+                        <td>{{ parent.occupation|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Contact d'urgence</th>
+                        <td>
+                            {% if parent.emergency_contact %}
+                                <span class="badge bg-success">Oui</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Non</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if parent.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+
+                <h5 class="mt-4">Informations personnelles</h5>
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Nom complet</th>
+                        <td>{{ parent.profile.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prénom</th>
+                        <td>{{ parent.profile.firstname|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nom de famille</th>
+                        <td>{{ parent.profile.name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de naissance</th>
+                        <td>{{ parent.profile.birth_date|date:"d/m/Y"|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Genre</th>
+                        <td>{{ parent.profile.get_gender_display|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Téléphone</th>
+                        <td>{{ parent.profile.phone|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pays</th>
+                        <td>{{ parent.profile.country|default:"-" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

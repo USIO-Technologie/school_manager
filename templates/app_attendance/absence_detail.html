@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de l'absence{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails de l'absence</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_attendance:absence_update' absence.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_attendance:absence_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Élève</th>
+                        <td>{{ absence.student.profile.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de début</th>
+                        <td>{{ absence.start_date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de fin</th>
+                        <td>{{ absence.end_date|date:"d/m/Y"|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Motif</th>
+                        <td>{{ absence.reason|default:"-"|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Justifiée</th>
+                        <td>
+                            {% if absence.is_justified %}
+                                <span class="badge bg-success">Oui</span>
+                            {% else %}
+                                <span class="badge bg-warning">Non</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if absence.justified_by %}
+                    <tr>
+                        <th>Justifiée par</th>
+                        <td>{{ absence.justified_by.profile.full_name }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if absence.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ absence.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

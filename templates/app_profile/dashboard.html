@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- En-tête du dashboard -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-1">Bienvenue, {{ profile.full_name|default:user.username }}!</h4>
+                        <p class="text-muted mb-0">Voici votre tableau de bord personnalisé</p>
+                    </div>
+                    {% if current_year %}
+                    <div class="text-end">
+                        <span class="badge bg-primary">{{ current_year.name }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if stats.is_student %}
+            <!-- ========== DASHBOARD ÉTUDIANT ========== -->
+            {% include 'app_profile/dashboard/student_dashboard.html' %}
+        
+        {% elif stats.is_teacher %}
+            <!-- ========== DASHBOARD ENSEIGNANT ========== -->
+            {% include 'app_profile/dashboard/teacher_dashboard.html' %}
+        
+        {% elif stats.is_parent %}
+            <!-- ========== DASHBOARD PARENT ========== -->
+            {% include 'app_profile/dashboard/parent_dashboard.html' %}
+        
+        {% elif is_admin %}
+            <!-- ========== DASHBOARD ADMIN ========== -->
+            {% include 'app_profile/dashboard/admin_dashboard.html' %}
+        
+        {% else %}
+            <!-- ========== DASHBOARD PAR DÉFAUT ========== -->
+            <div class="card">
+                <div class="card-body">
+                    <h5>Dashboard</h5>
+                    <p class="text-muted">Aucun rôle spécifique détecté. Veuillez contacter l'administrateur.</p>
+                    
+                    {% if stats %}
+                    <div class="row mt-4">
+                        {% if stats.total_users %}
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h3>{{ stats.total_users }}</h3>
+                                    <p class="mb-0">Utilisateurs totaux</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if stats.pending_verifications %}
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <h3>{{ stats.pending_verifications }}</h3>
+                                    <p class="mb-0">Vérifications en attente</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <h5>Actions rapides</h5>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'app_profile:profile_view' %}" class="btn btn-primary">
+                                    <i class="fas fa-user me-1"></i> Mon profil
+                                </a>
+                                {% if can_edit_profile %}
+                                <a href="{% url 'app_profile:profile_update' %}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-1"></i> Modifier mon profil
+                                </a>
+                                {% endif %}
+                                {% if can_view_all_users %}
+                                <a href="{% url 'app_profile:profile_list' %}" class="btn btn-info">
+                                    <i class="fas fa-users me-1"></i> Liste des profils
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    // Initialiser les graphiques ApexCharts si disponibles
+    document.addEventListener('DOMContentLoaded', function() {
+        // Les graphiques seront initialisés dans les templates inclus
+    });
+</script>
+{% endblock %}

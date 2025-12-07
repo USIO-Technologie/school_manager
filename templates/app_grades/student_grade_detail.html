@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de la note{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails de la note</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_grades:student_grade_update' student_grade.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_grades:grade_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Élève</th>
+                        <td>{{ student_grade.student.profile.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Évaluation</th>
+                        <td>{{ student_grade.assessment.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Matière</th>
+                        <td>{{ student_grade.assessment.subject.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Classe</th>
+                        <td>{{ student_grade.assessment.class_section.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ student_grade.assessment.date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Note</th>
+                        <td>
+                            {% if student_grade.is_absent %}
+                                <span class="badge bg-warning">Absent</span>
+                            {% elif student_grade.score %}
+                                <strong>{{ student_grade.score }}</strong> / {{ student_grade.assessment.max_score }}
+                            {% else %}
+                                <span class="text-muted">Non noté</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Absent</th>
+                        <td>
+                            {% if student_grade.is_absent %}
+                                <span class="badge bg-warning">Oui</span>
+                            {% else %}
+                                <span class="badge bg-success">Non</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Commentaire</th>
+                        <td>{{ student_grade.comment|default:"-"|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if student_grade.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ student_grade.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Fiche élève{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if student.profile.photo %}
+                    <img src="{{ student.profile.photo.url }}" alt="{{ student.profile.full_name }}" class="rounded-circle mb-3" width="150" height="150">
+                {% else %}
+                    <img src="{% static 'school_manager/assets/images/avatar.jpg' %}" alt="{{ student.profile.full_name }}" class="rounded-circle mb-3" width="150" height="150">
+                {% endif %}
+                <h4>{{ student.profile.full_name }}</h4>
+                <p class="text-muted">{{ student.profile.user.email|default:"-" }}</p>
+                <span class="badge bg-info">Élève</span>
+                <div class="mt-3">
+                    <a href="{% url 'app_profile:student_update' student.pk %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit me-1"></i> Modifier
+                    </a>
+                    <a href="{% url 'app_profile:student_list' %}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Informations élève</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Numéro d'élève</th>
+                        <td>{{ student.student_number|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Niveau de classe</th>
+                        <td>{{ student.class_level|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date d'inscription</th>
+                        <td>{{ student.enrollment_date|date:"d/m/Y"|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if student.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+
+                <h5 class="mt-4">Informations personnelles</h5>
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Nom complet</th>
+                        <td>{{ student.profile.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Prénom</th>
+                        <td>{{ student.profile.firstname|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nom de famille</th>
+                        <td>{{ student.profile.name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de naissance</th>
+                        <td>{{ student.profile.birth_date|date:"d/m/Y"|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Genre</th>
+                        <td>{{ student.profile.get_gender_display|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Téléphone</th>
+                        <td>{{ student.profile.phone|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Pays</th>
+                        <td>{{ student.profile.country|default:"-" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

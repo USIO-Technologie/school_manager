@@ -18,12 +18,17 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
     path('jet/', include('jet.urls', 'jet')),  # Django JET URLS
-    path('', include('comptes.urls')),
-    path("comptes/", include(("comptes.urls", "comptes"), namespace="comptes")),
+    path("jiwe/", admin.site.urls),
+    path("profiles/", include(("app_profile.urls", "app_profile"), namespace="app_profile")),
+    path("academic/", include(("app_academic.urls", "app_academic"), namespace="app_academic")),
+    path("grades/", include(("app_grades.urls", "app_grades"), namespace="app_grades")),
+    path("attendance/", include(("app_attendance.urls", "app_attendance"), namespace="app_attendance")),
+    # Redirection de la racine vers la landing page
+    path("", RedirectView.as_view(url="/profiles/landing/", permanent=False), name="root"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

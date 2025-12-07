@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Vérification de profil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Vérification de profil</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Statut de vérification:</strong>
+                    {% if profile.is_verified %}
+                        <span class="badge bg-success">Vérifié</span>
+                    {% else %}
+                        <span class="badge bg-warning">Non vérifié</span>
+                    {% endif %}
+                </div>
+
+                <h5 class="mt-4">Documents soumis</h5>
+                {% if documents %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Type de document</th>
+                                    <th>Statut</th>
+                                    <th>Date de soumission</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in documents %}
+                                    <tr>
+                                        <td>{{ doc.get_document_type_display }}</td>
+                                        <td>
+                                            {% if doc.status == 'approved' %}
+                                                <span class="badge bg-success">Approuvé</span>
+                                            {% elif doc.status == 'rejected' %}
+                                                <span class="badge bg-danger">Rejeté</span>
+                                            {% elif doc.status == 'under_review' %}
+                                                <span class="badge bg-info">En cours de vérification</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">En attente</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ doc.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#docModal{{ doc.id }}">
+                                                <i class="fas fa-eye"></i> Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucun document soumis pour vérification.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

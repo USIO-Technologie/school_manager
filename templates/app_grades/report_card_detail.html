@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails du bulletin{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails du bulletin</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_grades:report_card_update' report_card.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_grades:report_card_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Élève</th>
+                        <td>{{ report_card.student.profile.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Année scolaire</th>
+                        <td>{{ report_card.academic_year.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Trimestre/Semestre</th>
+                        <td>{{ report_card.term }}</td>
+                    </tr>
+                    <tr>
+                        <th>Moyenne générale</th>
+                        <td>
+                            {% if report_card.overall_average %}
+                                <strong>{{ report_card.overall_average }}</strong>
+                            {% else %}
+                                <span class="text-muted">Non calculée</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Classement</th>
+                        <td>
+                            {% if report_card.rank %}
+                                {{ report_card.rank }}{% if report_card.total_students %} / {{ report_card.total_students }}{% endif %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Nombre total d'élèves</th>
+                        <td>{{ report_card.total_students|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Commentaires</th>
+                        <td>{{ report_card.comments|default:"-"|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if report_card.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ report_card.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

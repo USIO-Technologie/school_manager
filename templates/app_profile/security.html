@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sécurité{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Sécurité du compte</h4>
+            </div>
+            <div class="card-body">
+                <h5>Sessions actives</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Appareil</th>
+                                <th>Adresse IP</th>
+                                <th>Localisation</th>
+                                <th>Dernière activité</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in active_sessions %}
+                                <tr>
+                                    <td>
+                                        {{ session.device_name|default:"-" }}
+                                        {% if current_session and session.id == current_session.id %}
+                                            <span class="badge bg-primary">Session actuelle</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ session.ip_address|default:"-" }}</td>
+                                    <td>{{ session.location|default:"-" }}</td>
+                                    <td>{{ session.last_activity|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if not current_session or session.id != current_session.id %}
+                                            <button class="btn btn-sm btn-danger" onclick="revokeSession({{ session.id }})">
+                                                <i class="fas fa-times"></i> Révoquer
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Aucune session active.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h5 class="mt-4">Appareils de confiance</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Appareil</th>
+                                <th>Adresse IP</th>
+                                <th>Localisation</th>
+                                <th>Dernière utilisation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for device in trusted_devices %}
+                                <tr>
+                                    <td>{{ device.device_name }}</td>
+                                    <td>{{ device.ip_address|default:"-" }}</td>
+                                    <td>{{ device.location|default:"-" }}</td>
+                                    <td>{{ device.last_used|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="removeDevice({{ device.id }})">
+                                            <i class="fas fa-trash"></i> Supprimer
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Aucun appareil de confiance.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{% url 'app_profile:login_history' %}" class="btn btn-primary">
+                        <i class="fas fa-history me-1"></i> Voir l'historique de connexion
+                    </a>
+                    <a href="{% url 'app_profile:activity_logs' %}" class="btn btn-secondary">
+                        <i class="fas fa-list me-1"></i> Voir les logs d'activités
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function revokeSession(sessionId) {
+    if (confirm('Êtes-vous sûr de vouloir révoquer cette session ?')) {
+        // TODO: Implémenter l'appel API pour révoquer la session
+        alert('Fonctionnalité à implémenter');
+    }
+}
+
+function removeDevice(deviceId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet appareil de confiance ?')) {
+        // TODO: Implémenter l'appel API pour supprimer l'appareil
+        alert('Fonctionnalité à implémenter');
+    }
+}
+</script>
+{% endblock %}
+

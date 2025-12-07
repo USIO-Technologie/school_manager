@@ -1,0 +1,150 @@
+# ======================================================
+#  Monity World CI/CD Workflow (Amélioré & Documenté)
+# ======================================================
+
+name: School Manager CI/CD
+
+on:
+  push:
+    branches: [ main ]       #  Exécute le workflow à chaque push sur la branche main
+  pull_request:
+    branches: [ main ]       #  Exécute aussi lors d’une Pull Request sur main
+
+jobs:
+
+  # ============================================
+  #  Étape 1 : Build & Test du projet Django
+  # ============================================
+  build-and-test:
+    runs-on: ubuntu-latest   #  Utilise la dernière version Ubuntu du runner GitHub
+
+    services:
+      postgres:
+        image: postgres:17
+        #  Lance un conteneur PostgreSQL pour simuler la base de données de production
+        env:
+          POSTGRES_DB: school_manager
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 5432:5432
+        #  Vérifie que PostgreSQL est bien prêt avant d’exécuter les tests
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      #  Variables d'environnement utilisées dans Django pour la config DB et settings
+      DB_NAME: monity
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: localhost
+      SECRET_KEY: fake-secret-key    #  Clé temporaire pour les tests
+      DEBUG: False                   #  Ne pas activer le mode debug en CI
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      #  Récupère le code source du dépôt pour exécuter les tests
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+      #  Installe Python 3.13 (version stable et compatible Django)
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      #  Accélère les builds en réutilisant les dépendances déjà téléchargées
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+      #  Installe toutes les dépendances nécessaires à ton projet
+
+    - name: Run migrations
+      run: |
+        python manage.py makemigrations
+        python manage.py migrate
+      #  Applique les migrations Django avant les tests
+
+    - name: Run tests
+      run: |
+        python manage.py test
+      #  Exécute la suite de tests pour valider le code avant déploiement
+
+  # ============================================
+  #  Étape 2 : Déploiement sur le VPS distant
+  # ============================================
+  deploy-to-vps:
+    needs: build-and-test      #  S'exécute uniquement si les tests ont réussi
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      #  Nécessaire pour que le script ait accès au code avant transfert
+
+    - name: Set up SSH
+      run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SCHOOL_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+      #  Configure la clé SSH privée et ajoute le VPS aux hôtes connus
+
+    - name: Deploy to VPS via SSH
+      run: |
+        ssh -vvv -p ${{ secrets.SSH_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+
+          echo "Répertoire courant :"
+          pwd
+
+          echo "Création du répertoire distant s'il n'existe pas..."
+          mkdir -p ~${{ secrets.FOLDER_PATH }}
+
+          echo "Accès au répertoire distant..."
+          cd ~${{ secrets.FOLDER_PATH }} || exit 1
+
+          echo "Contenu actuel du dossier :"
+          ls -la
+
+          echo "Stash des changements locaux éventuels..."
+          git stash --include-untracked
+
+          echo "Mise à jour du code via Git pull..."
+          git pull origin main
+
+          echo "Arrêt des anciens conteneurs Docker..."
+          docker-compose down
+
+          echo "Reconstruction et relance des conteneurs..."
+          docker-compose up --build -d
+
+          echo "Attente du démarrage complet..."
+          sleep 10  #  Temps pour que les conteneurs démarrent proprement
+
+          echo "Vérification des conteneurs actifs..."
+          docker-compose ps
+
+          echo "Application des migrations Django..."
+          docker-compose exec school_manager python manage.py migrate
+
+          echo "Collecte des fichiers statiques..."
+          docker-compose exec school_manager python manage.py collectstatic --noinput
+
+          echo "Lecture des 30 dernières lignes de logs Django..."
+          docker-compose logs --tail=30 school_manager
+
+          echo "Vérification de la disponibilité du site..."
+          curl -f http://localhost:8004/health || echo " Le service n'a pas encore répondu."
+
+          echo " Déploiement terminé avec succès."
+        EOF
+      # Exécute toutes les commandes ci-dessus directement sur le VPS distant

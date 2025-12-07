@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de l'évaluation{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails de l'évaluation : {{ assessment.name }}</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_grades:assessment_update' assessment.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_grades:assessment_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Nom</th>
+                        <td>{{ assessment.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Matière</th>
+                        <td>{{ assessment.subject.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Classe</th>
+                        <td>{{ assessment.class_section.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Catégorie</th>
+                        <td>{{ assessment.category.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ assessment.date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Coefficient</th>
+                        <td>{{ assessment.coefficient }}</td>
+                    </tr>
+                    <tr>
+                        <th>Note maximale</th>
+                        <td>{{ assessment.max_score }}</td>
+                    </tr>
+                    <tr>
+                        <th>Année scolaire</th>
+                        <td>{{ assessment.academic_year.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ assessment.description|default:"-"|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if assessment.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ assessment.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

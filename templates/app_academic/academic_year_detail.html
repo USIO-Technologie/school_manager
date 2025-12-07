@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de l'année scolaire{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails de l'année scolaire : {{ academic_year.name }}</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_academic:academic_year_update' academic_year.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_academic:academic_year_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Nom</th>
+                        <td>{{ academic_year.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de début</th>
+                        <td>{{ academic_year.start_date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date de fin</th>
+                        <td>{{ academic_year.end_date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Année courante</th>
+                        <td>
+                            {% if academic_year.is_current %}
+                                <span class="badge bg-success">Oui</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Non</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if academic_year.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ academic_year.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Dernière modification</th>
+                        <td>{{ academic_year.updated_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% if academic_year.created_by %}
+                    <tr>
+                        <th>Créé par</th>
+                        <td>{{ academic_year.created_by.get_full_name|default:academic_year.created_by.username }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

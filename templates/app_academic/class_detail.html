@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de la classe{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails de la classe : {{ class_obj.name }}</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_academic:class_update' class_obj.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_academic:class_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Nom</th>
+                        <td>{{ class_obj.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Code</th>
+                        <td>{{ class_obj.code }}</td>
+                    </tr>
+                    <tr>
+                        <th>Niveau</th>
+                        <td>{{ class_obj.grade.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Année scolaire</th>
+                        <td>{{ class_obj.academic_year.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Salle de classe</th>
+                        <td>{{ class_obj.classroom.name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Capacité</th>
+                        <td>{{ class_obj.capacity }}</td>
+                    </tr>
+                    <tr>
+                        <th>Professeur principal</th>
+                        <td>
+                            {% if class_obj.teacher %}
+                                {{ class_obj.teacher.profile.full_name }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Nombre d'élèves</th>
+                        <td>{{ class_obj.get_students_count }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if class_obj.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ class_obj.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Logs d'activités{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Logs d'activités du profil</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date et heure</th>
+                                <th>Type d'activité</th>
+                                <th>Adresse IP</th>
+                                <th>Appareil</th>
+                                <th>Localisation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in activity_logs %}
+                                <tr>
+                                    <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if log.status == 'success' %}
+                                            <span class="badge bg-success">Connexion réussie</span>
+                                        {% elif log.status == 'failed' %}
+                                            <span class="badge bg-danger">Connexion échouée</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ log.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ log.ip_address|default:"-" }}</td>
+                                    <td>{{ log.device_name|default:"-" }}</td>
+                                    <td>{{ log.location|default:"-" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Aucune activité enregistrée.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

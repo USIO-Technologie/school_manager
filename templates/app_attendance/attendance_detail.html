@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de la présence{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails de la présence</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_attendance:attendance_update' attendance.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_attendance:attendance_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Élève</th>
+                        <td>{{ attendance.student.profile.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Classe</th>
+                        <td>{{ attendance.class_section.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Date</th>
+                        <td>{{ attendance.date|date:"d/m/Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if attendance.status == 'present' %}
+                                <span class="badge bg-success">Présent</span>
+                            {% elif attendance.status == 'absent' %}
+                                <span class="badge bg-danger">Absent</span>
+                            {% elif attendance.status == 'late' %}
+                                <span class="badge bg-warning">En retard</span>
+                            {% elif attendance.status == 'excused' %}
+                                <span class="badge bg-info">Excusé</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Heure d'arrivée</th>
+                        <td>{{ attendance.time_in|time:"H:i"|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Heure de départ</th>
+                        <td>{{ attendance.time_out|time:"H:i"|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Notes</th>
+                        <td>{{ attendance.notes|default:"-"|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if attendance.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ attendance.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

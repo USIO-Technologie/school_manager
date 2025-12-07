@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Créer un élève{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Créer un élève</h4>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="profile_id" class="form-label">Sélectionner un profil *</label>
+                        <select class="form-select" id="profile_id" name="profile_id" required>
+                            <option value="">-- Sélectionnez un profil --</option>
+                            {% for profile in available_profiles %}
+                                <option value="{{ profile.id }}">{{ profile.full_name }} ({{ profile.user.username }})</option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-muted">Sélectionnez le profil utilisateur pour cet élève</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.student_number.id_for_label }}" class="form-label">{{ form.student_number.label }}</label>
+                        {{ form.student_number }}
+                        {% if form.student_number.errors %}
+                            <div class="text-danger">{{ form.student_number.errors }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">Laissez vide pour générer automatiquement</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.enrollment_date.id_for_label }}" class="form-label">{{ form.enrollment_date.label }}</label>
+                                {{ form.enrollment_date }}
+                                {% if form.enrollment_date.errors %}
+                                    <div class="text-danger">{{ form.enrollment_date.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.class_level.id_for_label }}" class="form-label">{{ form.class_level.label }}</label>
+                                {{ form.class_level }}
+                                {% if form.class_level.errors %}
+                                    <div class="text-danger">{{ form.class_level.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Créer
+                        </button>
+                        <a href="{% url 'app_profile:student_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-1"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

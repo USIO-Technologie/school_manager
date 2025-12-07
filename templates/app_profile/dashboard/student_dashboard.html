@@ -1,0 +1,363 @@
+{% load static %}
+
+<!-- Cartes de statistiques -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ dashboard_data.overall_average|default:"-"|floatformat:2 }}</h3>
+                        <p class="mb-0">Moyenne générale</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-chart-line fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ dashboard_data.attendance_rate|default:"-"|floatformat:1 }}%</h3>
+                        <p class="mb-0">Taux de présence</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-user-check fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ dashboard_data.unexcused_absences|default:0 }}</h3>
+                        <p class="mb-0">Absences non justifiées</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ dashboard_data.upcoming_assessments|length|default:0 }}</h3>
+                        <p class="mb-0">Examens à venir</p>
+                    </div>
+                    <div>
+                        <i class="fas fa-calendar-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Graphique d'évolution des notes -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-line me-2"></i>Évolution des notes</h5>
+            </div>
+            <div class="card-body">
+                <div id="gradesEvolutionChart" style="min-height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Taux de présence mensuel -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>Présence mensuelle</h5>
+            </div>
+            <div class="card-body">
+                <div id="attendanceMonthlyChart" style="min-height: 300px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Notes récentes -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-clipboard-list me-2"></i>Notes récentes</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.recent_grades %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Matière</th>
+                                <th>Note</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for grade in dashboard_data.recent_grades %}
+                            <tr>
+                                <td>{{ grade.assessment.subject.name }}</td>
+                                <td>
+                                    <span class="badge {% if grade.score >= 16 %}bg-success{% elif grade.score >= 14 %}bg-info{% elif grade.score >= 10 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ grade.score|floatformat:2 }}/{{ grade.assessment.max_score|default:20 }}
+                                    </span>
+                                </td>
+                                <td>{{ grade.assessment.date|date:"d/m/Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune note récente</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Prochains examens -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-calendar-check me-2"></i>Prochains examens</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.upcoming_assessments %}
+                <div class="list-group">
+                    {% for assessment in dashboard_data.upcoming_assessments %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ assessment.subject.name }}</h6>
+                                <p class="mb-1 text-muted">{{ assessment.name }}</p>
+                                <small class="text-muted">{{ assessment.category.name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary">{{ assessment.date|date:"d/m" }}</span>
+                                {% if assessment.date == today|date:"Y-m-d" %}
+                                <span class="badge bg-warning">Aujourd'hui</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucun examen à venir</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Emploi du temps du jour -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-clock me-2"></i>Emploi du temps - Aujourd'hui</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.today_schedule %}
+                <div class="list-group">
+                    {% for schedule in dashboard_data.today_schedule %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ schedule.subject.name }}</h6>
+                                <small class="text-muted">{{ schedule.teacher.profile.full_name|default:schedule.teacher.profile.user.username }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-info">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucun cours aujourd'hui</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Moyennes par matière -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-book me-2"></i>Moyennes par matière</h5>
+            </div>
+            <div class="card-body">
+                {% if dashboard_data.subject_averages %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Matière</th>
+                                <th>Moyenne</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in dashboard_data.subject_averages %}
+                            <tr>
+                                <td>{{ item.subject.name }}</td>
+                                <td>
+                                    <span class="badge {% if item.average >= 16 %}bg-success{% elif item.average >= 14 %}bg-info{% elif item.average >= 10 %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ item.average|floatformat:2 }}/20
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center">Aucune moyenne disponible</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Actions rapides -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'app_profile:my_student_profile' %}" class="btn btn-primary">
+                        <i class="fas fa-user me-1"></i> Mon profil étudiant
+                    </a>
+                    <a href="{% url 'app_profile:profile_view' %}" class="btn btn-info">
+                        <i class="fas fa-id-card me-1"></i> Mon profil
+                    </a>
+                    {% if can_edit_profile %}
+                    <a href="{% url 'app_profile:profile_update' %}" class="btn btn-warning">
+                        <i class="fas fa-edit me-1"></i> Modifier mon profil
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_javascript %}
+{{ dashboard_data.grades_chart_data|json_script:"grades-chart-data" }}
+{{ dashboard_data.monthly_attendance|json_script:"attendance-monthly-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique d'évolution des notes
+    var gradesDataElement = document.getElementById('grades-chart-data');
+    if (gradesDataElement) {
+        var gradesData = JSON.parse(gradesDataElement.textContent);
+    var series = [];
+    var categories = [];
+    
+    gradesData.forEach(function(item, index) {
+        series.push({
+            name: item.subject,
+            data: item.grades
+        });
+        // Générer les catégories (dates ou indices)
+        if (index === 0) {
+            for (var i = 0; i < item.grades.length; i++) {
+                categories.push('Note ' + (i + 1));
+            }
+        }
+    });
+    
+    var gradesOptions = {
+        series: series,
+        chart: {
+            type: 'line',
+            height: 300,
+            toolbar: { show: false }
+        },
+        xaxis: {
+            categories: categories
+        },
+        yaxis: {
+            min: 0,
+            max: 20,
+            title: { text: 'Note' }
+        },
+        colors: ['#556ee6', '#34c38f', '#f1b44c', '#f46a6a', '#50a5f1'],
+        stroke: { width: 2 },
+        markers: { size: 4 }
+    };
+    
+        var gradesChart = new ApexCharts(document.querySelector("#gradesEvolutionChart"), gradesOptions);
+        gradesChart.render();
+    }
+    
+    // Graphique de présence mensuelle
+    var monthlyDataElement = document.getElementById('attendance-monthly-data');
+    if (monthlyDataElement) {
+        var monthlyData = JSON.parse(monthlyDataElement.textContent);
+    var months = monthlyData.map(function(item) { return item.month; });
+    var rates = monthlyData.map(function(item) { return item.rate; });
+    
+    var attendanceOptions = {
+        series: [{
+            name: 'Taux de présence',
+            data: rates
+        }],
+        chart: {
+            type: 'bar',
+            height: 300,
+            toolbar: { show: false }
+        },
+        xaxis: {
+            categories: months
+        },
+        yaxis: {
+            min: 0,
+            max: 100,
+            title: { text: 'Taux (%)' }
+        },
+        colors: ['#34c38f'],
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                dataLabels: {
+                    position: 'top'
+                }
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val.toFixed(1) + '%';
+            }
+        }
+    };
+    
+        var attendanceChart = new ApexCharts(document.querySelector("#attendanceMonthlyChart"), attendanceOptions);
+        attendanceChart.render();
+    }
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Détails de la règle{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="card-title mb-0">Détails de la règle : {{ attendance_rule.name }}</h4>
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% url 'app_attendance:attendance_rule_update' attendance_rule.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{% url 'app_attendance:attendance_rule_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">Nom</th>
+                        <td>{{ attendance_rule.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Nombre maximum d'absences</th>
+                        <td>{{ attendance_rule.max_absences }}</td>
+                    </tr>
+                    <tr>
+                        <th>Seuil d'alerte</th>
+                        <td>{{ attendance_rule.alert_threshold }}</td>
+                    </tr>
+                    <tr>
+                        <th>Période (jours)</th>
+                        <td>{{ attendance_rule.period_days }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ attendance_rule.description|default:"-"|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th>Statut</th>
+                        <td>
+                            {% if attendance_rule.is_active %}
+                                <span class="badge bg-success">Actif</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactif</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date de création</th>
+                        <td>{{ attendance_rule.created_at|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
