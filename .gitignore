@@ -1,10 +1,6 @@
 .venv
 .idea
 
-# Ignorer les fichiers de migration Django
-*/migrations/
-!*/migrations/__init__.py
-
 # Ignorer la base de données SQLite (si tu utilises SQLite)
 *.sqlite3
 
