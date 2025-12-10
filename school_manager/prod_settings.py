@@ -9,6 +9,7 @@ import os
 DEBUG = False
 ALLOWED_HOSTS = [
         "jiwe-holding.online",
+        "127.0.0.1",
         "school.jiwe-holding.online",
         "www.jiwe-holding.online",  # au cas où tu utilises www
         "161.97.159.227",  # ton IP publique
