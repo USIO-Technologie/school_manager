@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'app_grades',  # Gestion des notes et évaluations
     'app_attendance',  # Gestion des présences et absences
     'import_export',
-    # 'django_celery_results',  # Backend de résultats pour Celery (désactivé temporairement si non installé)
+    'django_celery_results',  
 ]
 
 MIDDLEWARE = [

@@ -16,4 +16,3 @@ __pycache__/
 **/__pycache__/
 *.pyc
 .coding_rules
-.env
