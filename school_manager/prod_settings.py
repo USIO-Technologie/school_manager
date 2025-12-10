@@ -40,10 +40,10 @@ CSRF_TRUSTED_ORIGINS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DB_NAME", "school_db"),
+        'NAME': os.getenv("DB_NAME", "school_manager_db"),
         'HOST': os.getenv("DB_HOST", "db"),
         'PORT': os.getenv("DB_PORT", "5432"),
-        'USER': os.getenv("DB_USER", "school_user"),
+        'USER': os.getenv("DB_USER", "school_manager_user"),
         'PASSWORD': os.getenv("DB_PASSWORD", "blinding_school@"),
     }
 }
