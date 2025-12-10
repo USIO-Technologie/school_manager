@@ -29,6 +29,8 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Installe les dépendances Python + Gunicorn
+RUN pip install --upgrade pip
+RUN pip install psycopg[binary]
 # Gunicorn : serveur WSGI pour Django
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq-dev gcc \
